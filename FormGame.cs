@@ -14,6 +14,8 @@ namespace WumpusWorld
         private Button scopeButton = new();
         private bool wumpusIsDead = false;
 
+        private readonly ToolTip _toolTip;
+
         private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
         private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
         private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
@@ -33,6 +35,8 @@ namespace WumpusWorld
         {
             InitializeComponent();
 
+            _toolTip = new ToolTip();
+
             string[] pathImgs = Directory.GetFiles("img");
             _images = new Dictionary<string, Image>(6);
             foreach (string path in pathImgs)
@@ -47,6 +51,15 @@ namespace WumpusWorld
                 { button3, button7, button11, button15 },
                 { button4, button8, button12, button16 },
             };
+
+            _toolTip.SetToolTip(button_left, "Move Left (Arrow Left)");
+            _toolTip.SetToolTip(button_right, "Move Right (Arrow Right)");
+            _toolTip.SetToolTip(button_up, "Move Up (Arrow Up)");
+            _toolTip.SetToolTip(button_down, "Move Down (Arrow Down)");
+            _toolTip.SetToolTip(button_go, "Go (Enter)");
+            _toolTip.SetToolTip(button_get, "Get Gold (Space)");
+            _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
+
             StartBoard();
         }
 
