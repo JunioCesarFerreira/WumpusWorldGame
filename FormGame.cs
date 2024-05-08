@@ -1,25 +1,25 @@
-using System.Numerics;
-
 namespace WumpusWorld
 {
     public partial class FormGame : Form
     {
-        private readonly Button[,] _matrixButtons;
+        private readonly Button[,] _matrix;
         private readonly Dictionary<string, Image> _images;
 
         private Point index = new(0, 0);
         private Point[] pits = { new(0, 3), new(2, 0), new(3, 2) };
         private Point wumpus = new(1, 2);
         private Point gold = new(3, 3);
+
         private Button scopeButton = new();
+
         private bool wumpusIsDead = false;
+        private int playerScore = 0;
 
         private readonly ToolTip _toolTip;
 
         private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
         private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
         private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
-        private readonly Color _wumpusColor = Color.FromArgb(64, 32, 32);
         private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
 
         class Player
@@ -30,6 +30,7 @@ namespace WumpusWorld
             public bool HeardScream = false;
         }
         private Player player = new();
+
 
         public FormGame()
         {
@@ -44,7 +45,7 @@ namespace WumpusWorld
                 string name = Path.GetFileNameWithoutExtension(path);
                 _images[name] = Image.FromFile(path);
             }
-            _matrixButtons = new Button[4, 4]
+            _matrix = new Button[4, 4]
             {
                 { button1, button5, button9, button13 },
                 { button2, button6, button10, button14 },
@@ -65,7 +66,7 @@ namespace WumpusWorld
 
         private void StartBoard()
         {
-            foreach (Button button in _matrixButtons)
+            foreach (Button button in _matrix)
             {
                 button.Text = "";
                 button.ForeColor = _closedColor;
@@ -77,12 +78,16 @@ namespace WumpusWorld
                 button.FlatAppearance.MouseDownBackColor = _closedColor;
                 button.Enabled = true;
             }
+            playerScore = 0;
             player = new Player();
             index = new(0, 0);
-            scopeButton = _matrixButtons[index.X, index.Y];
+            wumpusIsDead = false;
+            button_arrow.Enabled = true;
+            scopeButton = _matrix[index.X, index.Y];
             scopeButton.Image = _images["player_down"];
             PaintButton(index, scopeButton);
             Tagging();
+            label_scream.Visible = false;
         }
 
 
@@ -93,17 +98,16 @@ namespace WumpusWorld
 
         private void Button_Show_MouseClick(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < _matrixButtons.GetLength(0); i++)
+            for (int i = 0; i < _matrix.GetLength(0); i++)
             {
-                for (int j = 0; j < _matrixButtons.GetLength(1); j++)
+                for (int j = 0; j < _matrix.GetLength(1); j++)
                 {
                     Point p = new(i, j);
-                    PaintButton(p, _matrixButtons[i, j]);
-                    BackgroundImageButton(p, _matrixButtons[i, j]);
+                    PaintButton(p, _matrix[i, j]);
+                    BackgroundImageButton(p, _matrix[i, j]);
                 }
             }
         }
-
 
         private void Directions_Click(object sender, MouseEventArgs e)
         {
@@ -149,11 +153,54 @@ namespace WumpusWorld
             }
         }
 
+        private void Button_Get_Click(object sender, EventArgs e)
+        {
+            if (index == gold)
+            {
+                UpdateScore(1000);
+                scopeButton.BackgroundImage = null;
+                scopeButton.BackColor = _openedColor;
+                scopeButton.FlatAppearance.MouseOverBackColor = _openedColor;
+                player.HaveGold = true;
+            }
+        }
+
+        private void Button_Arrow_Click(object sender, EventArgs e)
+        {
+            if (player.HaveArrow)
+            {
+                UpdateScore(-10);
+                player.HaveArrow = false;
+                button_arrow.Enabled = false;
+                switch (player.Direction)
+                {
+                    case "up":
+                        if (index.X == wumpus.X && index.Y + 1 == wumpus.Y)
+                            KillWumpus();
+                        break;
+                    case "down":
+                        if (index.X == wumpus.X && index.Y - 1 == wumpus.Y)
+                            KillWumpus();
+                        break;
+                    case "left":
+                        if (index.X - 1 == wumpus.X && index.Y == wumpus.Y)
+                            KillWumpus();
+                        break;
+                    case "right":
+                        if (index.X + 1 == wumpus.X && index.Y == wumpus.Y)
+                            KillWumpus();
+                        break;
+                }
+            }
+        }
+
+
         private void Go()
         {
-            _matrixButtons[index.X, index.Y].Image = scopeButton.Image;
+            UpdateScore(-1);
+            _matrix[index.X, index.Y].Image = scopeButton.Image;
             scopeButton.Image = null;
-            scopeButton = _matrixButtons[index.X, index.Y];
+            scopeButton = _matrix[index.X, index.Y];
             PaintButton(index, scopeButton);
             BackgroundImageButton(index, scopeButton);
             WorstHappened();
@@ -163,13 +210,15 @@ namespace WumpusWorld
         {
             if ((index == wumpus && !wumpusIsDead))
             {
+                UpdateScore(-1000);
                 MessageBox.Show("you were devoured by the Wumpus!");
-                foreach (var b in _matrixButtons) b.Enabled = false;
+                foreach (var b in _matrix) b.Enabled = false;
             }
             if (pits.Where(p => p == index).Any())
             {
+                UpdateScore(-1000);
                 MessageBox.Show("you fell into the pit and died!");
-                foreach (var b in _matrixButtons) b.Enabled = false;
+                foreach (var b in _matrix) b.Enabled = false;
             }
         }
 
@@ -180,8 +229,8 @@ namespace WumpusWorld
             button.ForeColor = Color.White;
             if (point == wumpus)
             {
-                button.BackColor = _wumpusColor;
-                button.FlatAppearance.MouseOverBackColor = _wumpusColor;
+                button.BackColor = _openedColor;
+                button.FlatAppearance.MouseOverBackColor = _openedColor;
             }
             if (pits.Where(p => p == point).Any())
             {
@@ -207,24 +256,24 @@ namespace WumpusWorld
 
         private void TagStench(int i, int j)
         {
-            if (!_matrixButtons[i, j].Text.Contains("Stench"))
+            if (!_matrix[i, j].Text.Contains("Stench"))
             {
-                _matrixButtons[i, j].Text += "Stench\n";
+                _matrix[i, j].Text += "Stench\n";
             }
         }
 
         private void TagBreeze(int i, int j)
         {
-            if (!_matrixButtons[i, j].Text.Contains("Breeze"))
+            if (!_matrix[i, j].Text.Contains("Breeze"))
             {
-                _matrixButtons[i, j].Text += "Breeze\n";
+                _matrix[i, j].Text += "Breeze\n";
             }
         }
 
         private void Tagging()
         {
-            int maxX = _matrixButtons.GetLength(0) - 1;
-            int maxY = _matrixButtons.GetLength(1) - 1;
+            int maxX = _matrix.GetLength(0) - 1;
+            int maxY = _matrix.GetLength(1) - 1;
             for (int i = 0; i <= maxX; i++)
             {
                 for (int j = 0; j <= maxY; j++)
@@ -265,52 +314,30 @@ namespace WumpusWorld
             }
         }
 
-        private void Button_Get_Click(object sender, EventArgs e)
+        private void KillWumpus()
         {
-            if (index == gold)
+            wumpusIsDead = true;
+            player.HeardScream = true;
+            label_scream.Visible = true;
+            foreach (var b in _matrix)
             {
-                scopeButton.BackgroundImage = null;
-                scopeButton.BackColor = _openedColor;
-                scopeButton.FlatAppearance.MouseOverBackColor = _openedColor;
-                player.HaveGold = true;
-            }
-        }
-
-        private void Button_Arrow_Click(object sender, EventArgs e)
-        {
-            if (player.HaveArrow)
-            {
-                player.HaveArrow = false;
-                button_arrow.Enabled = false;
-                switch (player.Direction)
+                if (b.BackgroundImage != null)
                 {
-                    case "up":
-                        if (index.X == wumpus.X && index.Y + 1 == wumpus.Y)
-                        {
-                            wumpusIsDead = true;
-                        }
+                    if (b.BackgroundImage == _images["wumpus"])
+                    {
+                        b.BackgroundImage = _images["dead_wumpus"];
                         break;
-                    case "down":
-                        if (index.X == wumpus.X && index.Y - 1 == wumpus.Y)
-                        {
-                            wumpusIsDead = true;
-                        }
-                        break;
-                    case "left":
-                        if (index.X - 1 == wumpus.X && index.Y == wumpus.Y)
-                        {
-                            wumpusIsDead = true;
-                        }
-                        break;
-                    case "right":
-                        if (index.X + 1 == wumpus.X && index.Y == wumpus.Y)
-                        {
-                            wumpusIsDead = true;
-                        }
-                        break;
+                    }
                 }
             }
         }
+
+        private void UpdateScore(int value)
+        {
+            playerScore += value;
+            label_score.Text = playerScore.ToString();
+        }
+
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {

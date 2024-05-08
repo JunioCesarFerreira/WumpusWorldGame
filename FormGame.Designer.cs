@@ -40,6 +40,7 @@
             button_get = new Button();
             button_arrow = new Button();
             button_go = new Button();
+            label_scream = new Label();
             game_grid = new TableLayoutPanel();
             button16 = new Button();
             button15 = new Button();
@@ -58,10 +59,10 @@
             button11 = new Button();
             button12 = new Button();
             tableLayoutPanel2 = new TableLayoutPanel();
+            label_score = new Label();
             button_new_game = new Button();
             button_show = new Button();
             label1 = new Label();
-            label_score = new Label();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -200,6 +201,7 @@
             tableLayoutPanel5.Controls.Add(button_get, 1, 1);
             tableLayoutPanel5.Controls.Add(button_arrow, 1, 2);
             tableLayoutPanel5.Controls.Add(button_go, 1, 0);
+            tableLayoutPanel5.Controls.Add(label_scream, 0, 0);
             tableLayoutPanel5.Location = new Point(355, 3);
             tableLayoutPanel5.Name = "tableLayoutPanel5";
             tableLayoutPanel5.RowCount = 3;
@@ -256,6 +258,19 @@
             button_go.Text = "go";
             button_go.UseVisualStyleBackColor = false;
             button_go.Click += Button_Go_Click;
+            // 
+            // label_scream
+            // 
+            label_scream.Anchor = AnchorStyles.Right;
+            label_scream.AutoSize = true;
+            label_scream.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label_scream.ForeColor = Color.White;
+            label_scream.Location = new Point(7, 19);
+            label_scream.Name = "label_scream";
+            label_scream.Size = new Size(51, 17);
+            label_scream.TabIndex = 6;
+            label_scream.Text = "scream";
+            label_scream.Visible = false;
             // 
             // game_grid
             // 
@@ -570,6 +585,18 @@
             tableLayoutPanel2.Size = new Size(681, 41);
             tableLayoutPanel2.TabIndex = 2;
             // 
+            // label_score
+            // 
+            label_score.Anchor = AnchorStyles.Left;
+            label_score.AutoSize = true;
+            label_score.Font = new Font("Segoe UI", 10F);
+            label_score.ForeColor = Color.White;
+            label_score.Location = new Point(513, 11);
+            label_score.Name = "label_score";
+            label_score.Size = new Size(17, 19);
+            label_score.TabIndex = 7;
+            label_score.Text = "0";
+            // 
             // button_new_game
             // 
             button_new_game.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -614,18 +641,6 @@
             label1.TabIndex = 6;
             label1.Text = "score";
             // 
-            // label_score
-            // 
-            label_score.Anchor = AnchorStyles.Left;
-            label_score.AutoSize = true;
-            label_score.Font = new Font("Segoe UI", 10F);
-            label_score.ForeColor = Color.White;
-            label_score.Location = new Point(513, 11);
-            label_score.Name = "label_score";
-            label_score.Size = new Size(17, 19);
-            label_score.TabIndex = 7;
-            label_score.Text = "0";
-            // 
             // FormGame
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -639,6 +654,7 @@
             tableLayoutPanel3.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
             game_grid.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
@@ -680,5 +696,6 @@
         private Button button_new_game;
         private Label label_score;
         private Label label1;
+        private Label label_scream;
     }
 }
