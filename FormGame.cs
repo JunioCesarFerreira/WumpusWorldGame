@@ -79,6 +79,7 @@ namespace WumpusWorld
                 button.Enabled = true;
             }
             playerScore = 0;
+            label_score.Text = "0";
             player = new Player();
             index = new(0, 0);
             wumpusIsDead = false;
@@ -93,6 +94,28 @@ namespace WumpusWorld
 
         private void Button_New_Game_MouseClick(object sender, MouseEventArgs e)
         {
+            var rand = new Random();
+            var positions = new List<Point>();
+
+            while (positions.Count < 5)
+            {
+                int x = rand.Next(0, _matrix.GetLength(0));
+                int y = rand.Next(0, _matrix.GetLength(1));
+
+                var p = new Point(x, y);
+
+                if (p != new Point(0, 0) && !positions.Contains(p))
+                {
+                    positions.Add(p);
+                }
+            }
+
+            gold = positions[0];
+            pits[0] = positions[1];
+            pits[1] = positions[2];
+            pits[2] = positions[3];
+            wumpus = positions[4];
+
             StartBoard();
         }
 
