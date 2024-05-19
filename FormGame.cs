@@ -178,7 +178,7 @@ namespace WumpusWorld
 
         private void Button_Get_Click(object sender, EventArgs e)
         {
-            if (index == gold)
+            if (index == gold && !player.HaveGold)
             {
                 UpdateScore(1000);
                 scopeButton.BackgroundImage = null;
@@ -260,7 +260,7 @@ namespace WumpusWorld
                 button.BackColor = _pitColor;
                 button.FlatAppearance.MouseOverBackColor = _pitColor;
             }
-            if (point == gold)
+            if (point == gold && !player.HaveGold)
             {
                 button.BackColor = _goldColor;
                 button.FlatAppearance.MouseOverBackColor = _goldColor;
@@ -331,7 +331,7 @@ namespace WumpusWorld
             {
                 button.BackgroundImage = wumpusIsDead ? _images["dead_wumpus"] : _images["wumpus"];
             }
-            if (point == gold)
+            if (point == gold && !player.HaveGold)
             {
                 button.BackgroundImage = _images["gold"];
             }
