@@ -1,9 +1,21 @@
+using System.Collections;
+using System.Collections.Generic;
+
 namespace WumpusWorld
 {
     public partial class FormGame : Form
     {
-        private readonly Button[,] _matrix;
+        private const int dim = 4;
+        private readonly Button[,] _buttons;
+        private readonly Label[,] _labels;
         private readonly Dictionary<string, Image> _images;
+
+        private readonly ToolTip _toolTip;
+
+        private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
+        private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
+        private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
+        private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
 
         private Point index = new(0, 0);
         private Point[] pits = { new(0, 3), new(2, 0), new(3, 2) };
@@ -15,12 +27,10 @@ namespace WumpusWorld
         private bool wumpusIsDead = false;
         private int playerScore = 0;
 
-        private readonly ToolTip _toolTip;
-
-        private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
-        private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
-        private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
-        private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
+        private float[,] wumpusProb = new float[dim, dim];
+        private float[,] pitProb = new float[dim, dim];
+        private bool[,] safe = new bool[dim, dim];
+        private bool[,] visited = new bool[dim, dim];
 
         class Player
         {
@@ -45,12 +55,19 @@ namespace WumpusWorld
                 string name = Path.GetFileNameWithoutExtension(path);
                 _images[name] = Image.FromFile(path);
             }
-            _matrix = new Button[4, 4]
+            _buttons = new Button[dim, dim]
             {
                 { button1, button5, button9, button13 },
                 { button2, button6, button10, button14 },
                 { button3, button7, button11, button15 },
                 { button4, button8, button12, button16 },
+            };
+            _labels = new Label[dim, dim]
+            {
+                {label1, label2, label3, label4},
+                {label5, label6, label7, label8},
+                {label9, label10, label11, label12},
+                {label13, label14, label15, label16}
             };
 
             _toolTip.SetToolTip(button_left, "Move Left (Arrow Left)");
@@ -66,7 +83,7 @@ namespace WumpusWorld
 
         private void StartBoard()
         {
-            foreach (Button button in _matrix)
+            foreach (Button button in _buttons)
             {
                 button.Text = "";
                 button.ForeColor = _closedColor;
@@ -84,13 +101,139 @@ namespace WumpusWorld
             index = new(0, 0);
             wumpusIsDead = false;
             button_arrow.Enabled = true;
-            scopeButton = _matrix[index.X, index.Y];
+            scopeButton = _buttons[index.X, index.Y];
             scopeButton.Image = _images["player_down"];
             PaintButton(index, scopeButton);
             Tagging();
-            label_scream.Visible = false;
+            label_scream.Visible = false;     
+            float p = (float)1 / 5; // Probabilidade inicial dos poços
+            pitProb = new float[,]
+            {
+                { 0, p, p, p },
+                { p, p, p, p },
+                { p, p, p, p },
+                { p, p, p, p }
+            };
+            safe = new bool[,]
+            {
+                {true, false, false, false },
+                {false, false, false, false },
+                {false, false, false, false },
+                {false, false, false, false }
+            };
+            visited = new bool[,]
+            {
+                {true, false, false, false },
+                {false, false, false, false },
+                {false, false, false, false },
+                {false, false, false, false }
+            };
+            CheckIsSafe();
+            ChangeWumpusProb(); // Probabilidade inicial do Wumpus
+            UpdateUIProb();
         }
 
+        private void CheckIfUnsafe(int x, int y, ref List<(int, int)> list)
+        {
+            if (!safe[x, y])
+            {
+                list.Add((x, y));
+            }
+        }
+
+        private List<(int, int)> GetWhere(bool[,] forMatrix, bool whereValue)
+        {
+            var list = new List<(int, int)>();
+            for (int i = 0; i < forMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < forMatrix.GetLength(1); j++)
+                {
+                    if (forMatrix[i, j] == whereValue) list.Add((i, j));
+                }
+            }
+            return list;
+        }
+
+        private void ClearWumpusProb()
+        {
+            for (int i = 0; i < wumpusProb.GetLength(0); i++)
+            {
+                for (int j = 0; j < wumpusProb.GetLength(1); j++)
+                {
+                    wumpusProb[i, j] = 0;
+                }
+            }
+        }
+
+        private void UpdateUIProb()
+        {
+            for (int i = wumpusProb.GetLength(0) - 1; i >= 0; i--)
+            {
+                for (int j = 0; j < wumpusProb.GetLength(1); j++)
+                {
+                    string wumpusText;
+                    if (wumpusProb[j, i] % 1 == 0)
+                        wumpusText = wumpusProb[j, i].ToString("F0");
+                    else
+                        wumpusText = wumpusProb[j, i].ToString("F2");
+
+                    _labels[j, i].Text = $"W={wumpusText}";
+                }
+            }
+        }
+
+        private void ChangeWumpusProb()
+        {
+            // Prepara modelos de onde está o Wumpus
+            var sets = new List<List<(int, int)>>();
+            foreach (var p in GetWhere(visited, true))
+            {
+                int x = p.Item1;
+                int y = p.Item2;
+                if (_buttons[x, y].Text.Contains("stench", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var list = new List<(int, int)>(4);
+                    if (x - 1 >= 0)
+                        CheckIfUnsafe(x - 1, y, ref list);
+
+                    if (x + 1 < _buttons.GetLength(0))
+                        CheckIfUnsafe(x + 1, y, ref list);
+
+                    if (y - 1 >= 0)
+                        CheckIfUnsafe(x, y - 1, ref list);
+
+                    if (y + 1 < _buttons.GetLength(1))
+                        CheckIfUnsafe(x, y + 1, ref list);
+
+                    if (list.Count > 0)
+                    {
+                        sets.Add(list);
+                    }
+                }
+            }
+
+            ClearWumpusProb();
+
+            if (sets.Count > 0)
+            {
+                // Inicializa a interseção com a primeira lista
+                var intersection = new HashSet<(int, int)>(sets[0]);
+
+                // Realiza a interseção com as outras listas
+                foreach (var list in sets.Skip(1))
+                    intersection.IntersectWith(list);
+
+                float prob = (float)1 / intersection.Count;
+                foreach (var e in intersection)
+                    wumpusProb[e.Item1, e.Item2] = prob;
+            }
+            else
+            {
+                var @unsafe = GetWhere(safe, false);
+                foreach (var p in @unsafe)
+                    wumpusProb[p.Item1, p.Item2] = (float)1 / @unsafe.Count;
+            }
+        }
 
         private void Button_New_Game_MouseClick(object sender, MouseEventArgs e)
         {
@@ -99,8 +242,8 @@ namespace WumpusWorld
 
             while (positions.Count < 5)
             {
-                int x = rand.Next(0, _matrix.GetLength(0));
-                int y = rand.Next(0, _matrix.GetLength(1));
+                int x = rand.Next(0, _buttons.GetLength(0));
+                int y = rand.Next(0, _buttons.GetLength(1));
 
                 var p = new Point(x, y);
 
@@ -121,13 +264,13 @@ namespace WumpusWorld
 
         private void Button_Show_MouseClick(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < _matrix.GetLength(0); i++)
+            for (int i = 0; i < _buttons.GetLength(0); i++)
             {
-                for (int j = 0; j < _matrix.GetLength(1); j++)
+                for (int j = 0; j < _buttons.GetLength(1); j++)
                 {
                     Point p = new(i, j);
-                    PaintButton(p, _matrix[i, j]);
-                    BackgroundImageButton(p, _matrix[i, j]);
+                    PaintButton(p, _buttons[i, j]);
+                    BackgroundImageButton(p, _buttons[i, j]);
                 }
             }
         }
@@ -221,27 +364,55 @@ namespace WumpusWorld
         private void Go()
         {
             UpdateScore(-1);
-            _matrix[index.X, index.Y].Image = scopeButton.Image;
+            _buttons[index.X, index.Y].Image = scopeButton.Image;
             scopeButton.Image = null;
-            scopeButton = _matrix[index.X, index.Y];
+            visited[index.X, index.Y] = true;
+            safe[index.X, index.Y] = true;
+            scopeButton = _buttons[index.X, index.Y];
             PaintButton(index, scopeButton);
             BackgroundImageButton(index, scopeButton);
             WorstHappened();
+            CheckIsSafe();
+            ChangeWumpusProb();
+            UpdateUIProb();
+        }
+
+
+        private void CheckIsSafe()
+        {
+            string text = scopeButton.Text.ToLower();
+            if (!text.Contains("stench") || wumpusIsDead)
+            {
+                if (index.X - 1 >= 0)
+                    safe[index.X - 1, index.Y] = true;
+
+                if (index.X + 1 < _buttons.GetLength(0))
+                    safe[index.X + 1, index.Y] = true;
+
+                if (index.Y - 1 >= 0)
+                    safe[index.X, index.Y - 1] = true;
+
+                if (index.Y + 1 < _buttons.GetLength(1))
+                    safe[index.X, index.Y + 1] = true;
+            }
         }
 
         private void WorstHappened()
         {
+            safe[index.X, index.Y] = true;
             if ((index == wumpus && !wumpusIsDead))
             {
+                safe[index.X, index.Y] = false;
                 UpdateScore(-1000);
                 MessageBox.Show("you were devoured by the Wumpus!");
-                foreach (var b in _matrix) b.Enabled = false;
+                foreach (var b in _buttons) b.Enabled = false;
             }
             if (pits.Where(p => p == index).Any())
             {
+                safe[index.X, index.Y] = false;
                 UpdateScore(-1000);
                 MessageBox.Show("you fell into the pit and died!");
-                foreach (var b in _matrix) b.Enabled = false;
+                foreach (var b in _buttons) b.Enabled = false;
             }
         }
 
@@ -279,24 +450,24 @@ namespace WumpusWorld
 
         private void TagStench(int i, int j)
         {
-            if (!_matrix[i, j].Text.Contains("Stench"))
+            if (!_buttons[i, j].Text.Contains("Stench"))
             {
-                _matrix[i, j].Text += "Stench\n";
+                _buttons[i, j].Text += "Stench\n";
             }
         }
 
         private void TagBreeze(int i, int j)
         {
-            if (!_matrix[i, j].Text.Contains("Breeze"))
+            if (!_buttons[i, j].Text.Contains("Breeze"))
             {
-                _matrix[i, j].Text += "Breeze\n";
+                _buttons[i, j].Text += "Breeze\n";
             }
         }
 
         private void Tagging()
         {
-            int maxX = _matrix.GetLength(0) - 1;
-            int maxY = _matrix.GetLength(1) - 1;
+            int maxX = _buttons.GetLength(0) - 1;
+            int maxY = _buttons.GetLength(1) - 1;
             for (int i = 0; i <= maxX; i++)
             {
                 for (int j = 0; j <= maxY; j++)
@@ -342,7 +513,7 @@ namespace WumpusWorld
             wumpusIsDead = true;
             player.HeardScream = true;
             label_scream.Visible = true;
-            foreach (var b in _matrix)
+            foreach (var b in _buttons)
             {
                 if (b.BackgroundImage != null)
                 {
@@ -360,7 +531,6 @@ namespace WumpusWorld
             playerScore += value;
             label_score.Text = playerScore.ToString();
         }
-
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
