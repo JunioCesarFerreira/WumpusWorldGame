@@ -5,33 +5,39 @@ namespace WumpusWorld
 {
     public partial class FormGame : Form
     {
-        private const int dim = 4;
-        private readonly Button[,] _buttons;
-        private readonly Label[,] _labels;
-        private readonly Dictionary<string, Image> _images;
+        private const int dim = 4; // Dimensão do problema
+        
+        private readonly Button[,] _buttons; // Matriz de botões que compõe o tabuleiro
+        private readonly Label[,] _labels;   // Matriz de labels de probabilidades
 
-        private readonly ToolTip _toolTip;
+        private readonly Dictionary<string, Image> _images;  
 
+        private readonly ToolTip _toolTip; // ToolTip dos botões de controle
+
+        // Cores utilizadas nas células do tabuleiro 
         private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
         private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
         private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
         private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
 
+        // Pontos de localização dos elementos do jogo
         private Point index = new(0, 0);
         private Point[] pits = { new(0, 3), new(2, 0), new(3, 2) };
         private Point wumpus = new(1, 2);
         private Point gold = new(3, 3);
 
+        // Posição atual do jogador
         private Button scopeButton = new();
 
+        // Indicares do jogo
         private bool wumpusIsDead = false;
         private int playerScore = 0;
 
-        private float[,] wumpusProb = new float[dim, dim];
-        private float[,] pitProb = new float[dim, dim];
-        private bool[,] safe = new bool[dim, dim];
-        private bool[,] visited = new bool[dim, dim];
+        // Distribuições de probabilidades
+        private readonly ProbabilityDistribution _wumpusPd;
+        private readonly ProbabilityDistribution _pitPd; // Em desenvolvimento...
 
+        // Classe Jogador
         class Player
         {
             public string Direction = "down";
@@ -78,9 +84,13 @@ namespace WumpusWorld
             _toolTip.SetToolTip(button_get, "Get Gold (Space)");
             _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
 
+            _wumpusPd = new ProbabilityDistribution(_buttons, "stench", 1);
+            _pitPd = new ProbabilityDistribution(_buttons, "breeze", 3);
+
             StartBoard();
         }
 
+        // Inicializa Tabuleiro
         private void StartBoard()
         {
             foreach (Button button in _buttons)
@@ -105,133 +115,33 @@ namespace WumpusWorld
             scopeButton.Image = _images["player_down"];
             PaintButton(index, scopeButton);
             Tagging();
-            label_scream.Visible = false;     
-            float p = (float)1 / 5; // Probabilidade inicial dos poços
-            pitProb = new float[,]
-            {
-                { 0, p, p, p },
-                { p, p, p, p },
-                { p, p, p, p },
-                { p, p, p, p }
-            };
-            safe = new bool[,]
-            {
-                {true, false, false, false },
-                {false, false, false, false },
-                {false, false, false, false },
-                {false, false, false, false }
-            };
-            visited = new bool[,]
-            {
-                {true, false, false, false },
-                {false, false, false, false },
-                {false, false, false, false },
-                {false, false, false, false }
-            };
-            CheckIsSafe();
-            ChangeWumpusProb(); // Probabilidade inicial do Wumpus
-            UpdateUIProb();
+            label_scream.Visible = false;
+            _wumpusPd.Initialize(index);
+            _pitPd.Initialize(index);
+            UpdateProbDist();
         }
 
-        private void CheckIfUnsafe(int x, int y, ref List<(int, int)> list)
+        // Atualiza tabela de distribuições de probabilidades
+        private void UpdateProbDist()
         {
-            if (!safe[x, y])
+            for (int i = _wumpusPd.ProbDist.GetLength(0) - 1; i >= 0; i--)
             {
-                list.Add((x, y));
-            }
-        }
-
-        private List<(int, int)> GetWhere(bool[,] forMatrix, bool whereValue)
-        {
-            var list = new List<(int, int)>();
-            for (int i = 0; i < forMatrix.GetLength(0); i++)
-            {
-                for (int j = 0; j < forMatrix.GetLength(1); j++)
-                {
-                    if (forMatrix[i, j] == whereValue) list.Add((i, j));
-                }
-            }
-            return list;
-        }
-
-        private void ClearWumpusProb()
-        {
-            for (int i = 0; i < wumpusProb.GetLength(0); i++)
-            {
-                for (int j = 0; j < wumpusProb.GetLength(1); j++)
-                {
-                    wumpusProb[i, j] = 0;
-                }
-            }
-        }
-
-        private void UpdateUIProb()
-        {
-            for (int i = wumpusProb.GetLength(0) - 1; i >= 0; i--)
-            {
-                for (int j = 0; j < wumpusProb.GetLength(1); j++)
+                for (int j = 0; j < _wumpusPd.ProbDist.GetLength(1); j++)
                 {
                     string wumpusText;
-                    if (wumpusProb[j, i] % 1 == 0)
-                        wumpusText = wumpusProb[j, i].ToString("F0");
+                    if (_wumpusPd.ProbDist[j, i] % 1 == 0)
+                        wumpusText = _wumpusPd.ProbDist[j, i].ToString("F0");
                     else
-                        wumpusText = wumpusProb[j, i].ToString("F2");
+                        wumpusText = _wumpusPd.ProbDist[j, i].ToString("F2");
 
-                    _labels[j, i].Text = $"W={wumpusText}";
+                    string pitsText;
+                    if (_pitPd.ProbDist[j, i] % 1 == 0)
+                        pitsText = _pitPd.ProbDist[j, i].ToString("F0");
+                    else
+                        pitsText = _pitPd.ProbDist[j, i].ToString("F2");
+
+                    _labels[j, i].Text = $"W={wumpusText}\nP={pitsText}";
                 }
-            }
-        }
-
-        private void ChangeWumpusProb()
-        {
-            // Prepara modelos de onde está o Wumpus
-            var sets = new List<List<(int, int)>>();
-            foreach (var p in GetWhere(visited, true))
-            {
-                int x = p.Item1;
-                int y = p.Item2;
-                if (_buttons[x, y].Text.Contains("stench", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    var list = new List<(int, int)>(4);
-                    if (x - 1 >= 0)
-                        CheckIfUnsafe(x - 1, y, ref list);
-
-                    if (x + 1 < _buttons.GetLength(0))
-                        CheckIfUnsafe(x + 1, y, ref list);
-
-                    if (y - 1 >= 0)
-                        CheckIfUnsafe(x, y - 1, ref list);
-
-                    if (y + 1 < _buttons.GetLength(1))
-                        CheckIfUnsafe(x, y + 1, ref list);
-
-                    if (list.Count > 0)
-                    {
-                        sets.Add(list);
-                    }
-                }
-            }
-
-            ClearWumpusProb();
-
-            if (sets.Count > 0)
-            {
-                // Inicializa a interseção com a primeira lista
-                var intersection = new HashSet<(int, int)>(sets[0]);
-
-                // Realiza a interseção com as outras listas
-                foreach (var list in sets.Skip(1))
-                    intersection.IntersectWith(list);
-
-                float prob = (float)1 / intersection.Count;
-                foreach (var e in intersection)
-                    wumpusProb[e.Item1, e.Item2] = prob;
-            }
-            else
-            {
-                var @unsafe = GetWhere(safe, false);
-                foreach (var p in @unsafe)
-                    wumpusProb[p.Item1, p.Item2] = (float)1 / @unsafe.Count;
             }
         }
 
@@ -292,28 +202,28 @@ namespace WumpusWorld
                     if (index.Y < game_grid.RowCount - 1)
                     {
                         index.Y++;
-                        Go();
+                        MovePlayer();
                     }
                     break;
                 case "down":
                     if (index.Y > 0)
                     {
                         index.Y--;
-                        Go();
+                        MovePlayer();
                     }
                     break;
                 case "left":
                     if (index.X > 0)
                     {
                         index.X--;
-                        Go();
+                        MovePlayer();
                     }
                     break;
                 case "right":
                     if (index.X < game_grid.RowCount - 1)
                     {
                         index.X++;
-                        Go();
+                        MovePlayer();
                     }
                     break;
             }
@@ -361,55 +271,30 @@ namespace WumpusWorld
         }
 
 
-        private void Go()
+        private void MovePlayer()
         {
             UpdateScore(-1);
             _buttons[index.X, index.Y].Image = scopeButton.Image;
             scopeButton.Image = null;
-            visited[index.X, index.Y] = true;
-            safe[index.X, index.Y] = true;
             scopeButton = _buttons[index.X, index.Y];
             PaintButton(index, scopeButton);
             BackgroundImageButton(index, scopeButton);
             WorstHappened();
-            CheckIsSafe();
-            ChangeWumpusProb();
-            UpdateUIProb();
-        }
-
-
-        private void CheckIsSafe()
-        {
-            string text = scopeButton.Text.ToLower();
-            if (!text.Contains("stench") || wumpusIsDead)
-            {
-                if (index.X - 1 >= 0)
-                    safe[index.X - 1, index.Y] = true;
-
-                if (index.X + 1 < _buttons.GetLength(0))
-                    safe[index.X + 1, index.Y] = true;
-
-                if (index.Y - 1 >= 0)
-                    safe[index.X, index.Y - 1] = true;
-
-                if (index.Y + 1 < _buttons.GetLength(1))
-                    safe[index.X, index.Y + 1] = true;
-            }
+            _wumpusPd.CheckSafety(index, wumpusIsDead);
+            _pitPd.CheckSafety(index, false);
+            UpdateProbDist();
         }
 
         private void WorstHappened()
-        {
-            safe[index.X, index.Y] = true;
+        {;
             if ((index == wumpus && !wumpusIsDead))
             {
-                safe[index.X, index.Y] = false;
                 UpdateScore(-1000);
                 MessageBox.Show("you were devoured by the Wumpus!");
                 foreach (var b in _buttons) b.Enabled = false;
             }
             if (pits.Where(p => p == index).Any())
-            {
-                safe[index.X, index.Y] = false;
+            {;
                 UpdateScore(-1000);
                 MessageBox.Show("you fell into the pit and died!");
                 foreach (var b in _buttons) b.Enabled = false;
