@@ -103,6 +103,11 @@
             }
         }
 
+        // Adiciona à lista se não for seguro
+        private void AddIfUnsafe(int x, int y, ref List<(int, int)> list)
+        {
+            if (!_safe[x, y] && !_visited[x,y]) list.Add((x, y));
+        }
         public void Clear()
         {
             for (int i = 0; i < _probDist.GetLength(0); i++)
@@ -125,15 +130,6 @@
                 }
             }
             return list;
-        }
-
-        // Adiciona à lista se não for seguro
-        private void AddIfUnsafe(int x, int y, ref List<(int, int)> list)
-        {
-            if (!_safe[x, y])
-            {
-                list.Add((x, y));
-            }
         }
 
         private void MarkAdjacentCellsAsSafe(Point pos)
