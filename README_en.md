@@ -40,4 +40,8 @@ In Wumpus World, the player moves a character through a 4x4 grid, where each cel
   - Space for "Get".
   - A for "Arrow".
 
+## Probabilities Matrix
+
+![img2](print2.png)
+
 ## Still under development...

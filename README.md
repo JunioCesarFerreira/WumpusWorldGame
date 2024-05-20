@@ -14,7 +14,7 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 - Dicas sensoriais como "Breeze" e "Stench" para indicar a proximidade de perigos.
 - Capacidade de atirar uma flecha para matar o Wumpus.
 
- ![img](print.png)
+![img](print.png)
 
 ## Requisitos
 
@@ -40,4 +40,9 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
   - Espaço para "Get".
   - A para "Arrow".
 
-  ## Ainda não está completo...
+## Matriz de probabilidades
+
+![img2](print2.png)
+
+
+## Ainda não está completo...
