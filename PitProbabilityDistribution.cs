@@ -1,24 +1,23 @@
 ﻿namespace WumpusWorld
 {
-    internal class ProbabilityDistribution
+    internal class PitProbabilityDistribution
     {
         private readonly int _dim;
         private readonly string _tag;
-        private readonly int _numberEnemies;
         private readonly Button[,] _board;
-        private readonly float[,] _probDist;
+        private readonly Dictionary<(int,int),float> _probDist;
         private readonly bool[,] _safe;
         private readonly bool[,] _visited;
+        private readonly List<(int, int)> _found = new List<(int, int)>();
 
-        public float[,] ProbDist { get { return _probDist; } }
+        public Dictionary<(int, int), float> ProbDist { get { return _probDist; } }
 
-        public ProbabilityDistribution(Button[,] board, string tag, int numberEnemies)
+        public PitProbabilityDistribution(Button[,] board, string tag)
         {
             _board = board;
             _dim = board.GetLength(0);
             _tag = tag;
-            _numberEnemies = numberEnemies;
-            _probDist = new float[_dim, _dim];
+            _probDist = new Dictionary<(int, int), float>(_dim*_dim);
             _safe = new bool[_dim, _dim];
             _visited = new bool[_dim, _dim];
         }
@@ -36,7 +35,7 @@
             _safe[startPosition.X, startPosition.Y] = true;
             _visited[startPosition.X, startPosition.Y] = true;
             Clear();
-            CheckSafety(new Point(0,0), false);
+            CheckSafety(startPosition, false);
         }
 
         public void CheckSafety(Point position, bool isSafe)
@@ -54,7 +53,7 @@
         {
             // Prepara modelos de onde está o Wumpus
             var sets = new List<List<(int, int)>>();
-            foreach (var p in GetPositionWhere(_visited, true))
+            foreach (var p in GetPositionsWhere(_visited, true))
             {
                 int x = p.Item1;
                 int y = p.Item2;
@@ -84,42 +83,79 @@
 
             if (sets.Count > 0)
             {
-                // Inicializa a interseção com a primeira lista
-                var intersection = new HashSet<(int, int)>(sets[0]);
-
-                // Realiza a interseção com as outras listas
-                foreach (var list in sets.Skip(1))
-                    intersection.IntersectWith(list);
-
-                float prob = (float)_numberEnemies / intersection.Count;
-                foreach (var e in intersection)
-                    _probDist[e.Item1, e.Item2] = prob;
+                foreach (var list in sets)
+                {
+                    float prob = (float)1 / list.Count;
+                    foreach (var e in list)
+                        _probDist[(e.Item1, e.Item2)] = prob;
+                }
             }
             else
             {
-                var @unsafe = GetPositionWhere(_safe, false);
+                var @unsafe = GetPositionsWhere(_safe, false);
                 foreach (var p in @unsafe)
-                    _probDist[p.Item1, p.Item2] = (float)_numberEnemies / @unsafe.Count;
+                {
+                    _probDist[(p.Item1, p.Item2)] = (float)3 / @unsafe.Count;
+                }
+            }
+            var greaters = _probDist.Where(e => e.Value > 1).ToArray();
+            foreach (var e in greaters)
+            {
+                _probDist[e.Key] = e.Value/greaters.Length;
+                if (_probDist[e.Key] > 1)
+                {
+                    float tmp = _probDist[e.Key] - 1;
+                    _probDist[e.Key] = 1;
+                    foreach (var others in _probDist)
+                    {
+                        if (others.Value == 0 && !_safe[others.Key.Item1, others.Key.Item2] && !_visited[others.Key.Item1, others.Key.Item2])
+                        {
+                            _probDist[others.Key] = tmp / GetPositionsWhere(_safe, false).Count;
+                        }
+                    }
+                }
+            }
+            foreach (var e in _probDist)
+            {
+                if (_probDist[e.Key] == 1 && !_found.Contains(e.Key))
+                {
+                    _found.Add(e.Key);
+                }
+            }
+            if (_found.Count > 0)
+            {
+                foreach (var k in _found)
+                {
+                    _probDist[k] = 1;
+                }
+            }
+            if (_found.Count == 3)
+            {
+                _probDist
+                    .Where(e => e.Value != 1)
+                    .ToList()
+                    .ForEach(e => _probDist[e.Key] = 0 );
             }
         }
 
         // Adiciona à lista se não for seguro
         private void AddIfUnsafe(int x, int y, ref List<(int, int)> list)
         {
-            if (!_safe[x, y] && !_visited[x,y]) list.Add((x, y));
+            if (!_safe[x, y] && !_visited[x, y]) list.Add((x, y));
         }
-        public void Clear()
+
+        private void Clear()
         {
-            for (int i = 0; i < _probDist.GetLength(0); i++)
+            for (int i = 0; i < _dim; i++)
             {
-                for (int j = 0; j < _probDist.GetLength(1); j++)
+                for (int j = 0; j < _dim; j++)
                 {
-                    _probDist[i, j] = 0;
+                    _probDist[(i, j)] = 0;
                 }
             }
         }
 
-        private static List<(int, int)> GetPositionWhere(bool[,] forMatrix, bool whereValue)
+        private static List<(int, int)> GetPositionsWhere(bool[,] forMatrix, bool whereValue)
         {
             var list = new List<(int, int)>();
             for (int i = 0; i < forMatrix.GetLength(0); i++)

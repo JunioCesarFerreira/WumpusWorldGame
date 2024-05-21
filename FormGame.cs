@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-
 namespace WumpusWorld
 {
     public partial class FormGame : Form
@@ -34,8 +31,8 @@ namespace WumpusWorld
         private int playerScore = 0;
 
         // Distribuições de probabilidades
-        private readonly ProbabilityDistribution _wumpusPd;
-        private readonly ProbabilityDistribution _pitPd; // Em desenvolvimento...
+        private readonly WumpusProbabilityDistribution _wumpusPd;
+        private readonly PitProbabilityDistribution _pitPd; // Em desenvolvimento...
 
         // Classe Jogador
         class Player
@@ -84,8 +81,8 @@ namespace WumpusWorld
             _toolTip.SetToolTip(button_get, "Get Gold (Space)");
             _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
 
-            _wumpusPd = new ProbabilityDistribution(_buttons, "stench", 1);
-            _pitPd = new ProbabilityDistribution(_buttons, "breeze", 3);
+            _wumpusPd = new WumpusProbabilityDistribution(_buttons, "stench");
+            _pitPd = new PitProbabilityDistribution(_buttons, "breeze");
 
             StartBoard();
         }
@@ -135,10 +132,10 @@ namespace WumpusWorld
                         wumpusText = _wumpusPd.ProbDist[j, i].ToString("F2");
 
                     string pitsText;
-                    if (_pitPd.ProbDist[j, i] % 1 == 0)
-                        pitsText = _pitPd.ProbDist[j, i].ToString("F0");
+                    if (_pitPd.ProbDist[(j, i)] % 1 == 0)
+                        pitsText = _pitPd.ProbDist[(j, i)].ToString("F0");
                     else
-                        pitsText = _pitPd.ProbDist[j, i].ToString("F2");
+                        pitsText = _pitPd.ProbDist[(j, i)].ToString("F2");
 
                     _labels[j, i].Text = $"W={wumpusText}\nP={pitsText}";
                 }
