@@ -45,4 +45,34 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 ![img2](print2.png)
 
 
-## Ainda não está completo...
+## Sobre as distribuições de probabilidades
+
+#### Definição de Adjacência de um Conjunto
+Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
+
+$$
+A = \text{adj}(C) = \{ a_{u,v} \in B \mid \exists \, (i,j) \in C, \, (u,v) \in \{ (i+1,j), (i-1,j), (i,j+1), (i,j-1) \} \}
+$$
+
+#### Exemplo
+Seja $C = \{ c_{1,1} \}$, então $\text{adj}(C) = \{ c_{1,2}, c_{2,1} \}$.
+
+#### Definição de Subconjuntos
+Definimos:
+- $V$ o conjunto das células visitadas pelo jogador.
+- $S$ o conjunto das células seguras por dedução.
+- $S^c := B \setminus S$.
+- $M$ o conjunto das células que indicam que há algum perigo na adjacência.
+- $H := \{ H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \}$.
+
+Note que $M \subset V \subset S$.
+
+### Probabilidades do Wumpus
+$$
+P(C_{i,j} = w \mid M, S) = 
+\begin{cases} 
+0, & \text{se } C_{i,j} \in S, \\
+(|B| - |S|)^{-1}, & \text{se } H = \emptyset \text{ e } C_{i,j} \notin S, \\
+|\bigcap H_{i,j}|^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
+\end{cases}
+$$

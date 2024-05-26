@@ -8,6 +8,7 @@
         private readonly float[,] _probDist;
         private readonly bool[,] _safe;
         private readonly bool[,] _visited;
+        private bool found = false;
 
         public float[,] ProbDist { get { return _probDist; } }
 
@@ -44,11 +45,12 @@
             {
                 MarkAdjacentCellsAsSafe(position);
             }
-            UpdateProbabilities();
+            if (isSafe) Clear();
+            else UpdateProbabilities();
         }
 
-        // Modifica as probabilidades da localização do Wumpus
-        public void UpdateProbabilities()
+        // Atualiza as probabilidades da localização do Wumpus
+        private void UpdateProbabilities()
         {
             // Prepara modelos de onde está o Wumpus
             var sets = new List<List<(int, int)>>();
@@ -78,7 +80,7 @@
                 }
             }
 
-            Clear();
+            Clear(); // Zera a distribuição de probabilidades
 
             if (sets.Count > 0)
             {
@@ -104,7 +106,7 @@
         // Adiciona à lista se não for seguro
         private void AddIfUnsafe(int x, int y, ref List<(int, int)> list)
         {
-            if (!_safe[x, y] && !_visited[x,y]) list.Add((x, y));
+            if (!_safe[x, y]) list.Add((x, y));
         }
 
         private void Clear()
