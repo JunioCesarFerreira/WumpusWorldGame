@@ -44,4 +44,67 @@ In Wumpus World, the player moves a character through a 4x4 grid, where each cel
 
 ![img2](print2.png)
 
-## Still under development...
+## About Probability Distributions
+
+#### Definition of Adjacency of a Set
+Let $C$ be a subset of cells in the board $B$. The adjacency set $A = \text{adj}(C)$ is given by all cells adjacent to the cells in $C$ in the directions above, below, to the right, and to the left.
+
+$$
+A = \text{adj}(C) = \{ a_{u,v} \in B \mid \exists \, (i,j) \in C, \, (u,v) \in \{ (i+1,j), (i-1,j), (i,j+1), (i,j-1) \} \}
+$$
+
+#### Example
+Let $C = \{ c_{1,1} \}$, then $\text{adj}(C) = \{ c_{1,2}, c_{2,1} \}$.
+
+#### Definition of Subsets
+We define:
+- $V$ as the set of cells visited by the player.
+- $S$ as the set of cells deduced to be safe.
+- $S^c := B \setminus S$.
+- $M$ as the set of cells indicating that there is some danger in the adjacency.
+- $H := \{ H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \}$.
+
+Note that $M \subset V \subset S$.
+
+#### Wumpus Probabilities
+$$
+P(C_{i,j} = w \mid M, S) = 
+\begin{cases} 
+0, & \text{if } C_{i,j} \in S, \\
+(||B|| - ||S||)^{-1}, & \text{if } H = \emptyset \text{ and } C_{i,j} \notin S, \\
+||\bigcap H_{i,j}||^{-1}, & \text{if } H \neq \emptyset \text{ and } C_{i,j} \notin S.
+\end{cases}
+$$
+
+The notation $||A||$ indicates the cardinality of set $A$.
+
+This version was abandoned after the generalization below. However, if you want to see the implementation, it is done in the class [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs).
+
+### Generalization of Probability Distribution
+
+#### Definition
+We denote by $\mathcal{C_n}$ the set of all possible combinations of $n$ cells from $S^c$ that can contain $n$ hazards (whether pits or the Wumpus). That is,
+
+$$
+\mathcal{C_n} := \{ C \subset S^c \mid ||C|| = n \}.
+$$
+
+Let $M$ be the set of cells indicating danger. We define the set of valid configurations as:
+
+$$
+\mathbb{V} := \{ \mathbf{C} \in \mathcal{C_n} \mid \text{adj}(\mathbf{C}) \cap M = \emptyset \}.
+$$
+
+Thus, each configuration $\mathbf{C} \in \mathcal{C_n}$ represents a possible distribution of the indicated hazards.
+
+#### Hazard Probability
+
+$$
+P(C_{i,j} = p \mid M, S) =
+\begin{cases}
+0, & \text{if } C_{i,j} \in S,\\
+\frac{||\{\mathbf{C} \in \mathcal{C_n} \mid C_{i,j} \in \mathbf{C}\}||}{||\mathbb{V}||}, & \text{if } C_{i,j} \notin S.
+\end{cases}
+$$
+
+This is the distribution implemented in [HazardProbabilityDistribution](HazardProbabilityDistribution.cs).

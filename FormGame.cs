@@ -31,8 +31,8 @@ namespace WumpusWorld
         private int playerScore = 0;
 
         // Distribuições de probabilidades
-        private readonly WumpusProbabilityDistribution _wumpusPd;
-        private readonly PitProbabilityDistribution _pitPd; // Em desenvolvimento...
+        private readonly HazardProbabilityDistribution _wumpusPd;
+        private readonly HazardProbabilityDistribution _pitPd; // Em desenvolvimento...
 
         // Classe Jogador
         class Player
@@ -81,8 +81,8 @@ namespace WumpusWorld
             _toolTip.SetToolTip(button_get, "Get Gold (Space)");
             _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
 
-            _wumpusPd = new WumpusProbabilityDistribution(_buttons, "stench");
-            _pitPd = new PitProbabilityDistribution(_buttons, "breeze");
+            _wumpusPd = new HazardProbabilityDistribution(_buttons, "stench", 1);
+            _pitPd = new HazardProbabilityDistribution(_buttons, "breeze", 3);
 
             StartBoard();
         }
@@ -121,6 +121,11 @@ namespace WumpusWorld
         // Atualiza tabela de distribuições de probabilidades
         private void UpdateProbDist()
         {
+            if (wumpusIsDead) _wumpusPd.ClearProbabilityDistribution();
+            else _wumpusPd.CalculateProbabilities();
+
+            _pitPd.CalculateProbabilities();
+
             for (int i = _wumpusPd.ProbDist.GetLength(0) - 1; i >= 0; i--)
             {
                 for (int j = 0; j < _wumpusPd.ProbDist.GetLength(1); j++)
@@ -132,10 +137,10 @@ namespace WumpusWorld
                         wumpusText = _wumpusPd.ProbDist[j, i].ToString("F2");
 
                     string pitsText;
-                    if (_pitPd.ProbDist[(j, i)] % 1 == 0)
-                        pitsText = _pitPd.ProbDist[(j, i)].ToString("F0");
+                    if (_pitPd.ProbDist[j, i] % 1 == 0)
+                        pitsText = _pitPd.ProbDist[j, i].ToString("F0");
                     else
-                        pitsText = _pitPd.ProbDist[(j, i)].ToString("F2");
+                        pitsText = _pitPd.ProbDist[j, i].ToString("F2");
 
                     _labels[j, i].Text = $"W={wumpusText}\nP={pitsText}";
                 }
@@ -277,8 +282,10 @@ namespace WumpusWorld
             PaintButton(index, scopeButton);
             BackgroundImageButton(index, scopeButton);
             WorstHappened();
+
             _wumpusPd.CheckSafety(index, wumpusIsDead);
             _pitPd.CheckSafety(index, false);
+
             UpdateProbDist();
         }
 

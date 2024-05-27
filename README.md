@@ -45,7 +45,7 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 ![img2](print2.png)
 
 
-## Sobre as distribuições de probabilidades
+## Sobre as Distribuições de Probabilidades
 
 #### Definição de Adjacência de um Conjunto
 Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
@@ -67,12 +67,42 @@ Definimos:
 
 Note que $M \subset V \subset S$.
 
-### Probabilidades do Wumpus
+#### Probabilidades do Wumpus
 $$
 P(C_{i,j} = w \mid M, S) = 
 \begin{cases} 
 0, & \text{se } C_{i,j} \in S, \\
-(|B| - |S|)^{-1}, & \text{se } H = \emptyset \text{ e } C_{i,j} \notin S, \\
-|\bigcap H_{i,j}|^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
+(||B|| - ||S||)^{-1}, & \text{se } H = \emptyset \text{ e } C_{i,j} \notin S, \\
+||\bigcap H_{i,j}||^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
 \end{cases}
 $$
+
+A notação $||A||$ indica a cardinalidade do conjunto $A$.
+
+Esta versão foi abandonada após a gernaralização a seguir. Mas caso queira ver implementação é feita na classe [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs).
+
+
+### Generalização da Distribuição de Probabilidades
+
+#### Definição
+Denotamos por $\mathcal{C_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
+$$
+\mathcal{C_n}:=\{ C\subset S^c \mid ||C||=n \}.
+$$
+Seja $M$ o conjunto das células com indicação de perigo. Definimos o conjunto das configurações válidas por:
+$$
+\mathbb{V}:=\{ \mathbf{C}\in\mathcal{C_n} \mid adj(\mathbf{C})\cap M = \emptyset \}.
+$$
+
+Assim, cada configuração $\mathbf{C}\in\mathcal{C_n}$ representa uma possível distribuição dos perigos indicados.
+
+#### Probabilidade de Perigo
+
+$$
+P(C_{i,j}=p|M,S)=\begin{cases}
+0, &\text{ se }C_{i,j}\in S,\\
+\frac{||\{\mathbf{C}\in\mathcal{C_n}\mid C_{i,j}\in\mathbf{C}\}||}{||\mathbb{V}||}, &\text{ se }C_{i,j}\notin S.
+\end{cases}
+$$
+
+Esta é distribuição que implementamos em [HazardProbabilityDistribution](HazardProbabilityDistribution.cs).
