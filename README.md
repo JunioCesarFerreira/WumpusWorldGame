@@ -51,7 +51,7 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
 
 $$
-A = \text{adj}(C) = cup_{(i,j)\in C}\lbrace (i+1,j), (i-1,j), (i,j+1), (i,j-1)\rbrace
+A = \text{adj}(C) = \bigcup_{(i,j)\in C}\big\lbrace (i+1,j), (i-1,j), (i,j+1), (i,j-1)\big\rbrace
 $$
 
 #### Exemplo
@@ -63,7 +63,7 @@ Definimos:
 - $S$ o conjunto das células seguras por dedução.
 - $S^c := B \setminus S$.
 - $M$ o conjunto das células que indicam que há algum perigo na adjacência.
-- $H := \lbrace H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \rbrace$.
+- $H := \big\lbrace H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \big\rbrace$.
 
 Note que $M \subset V \subset S$.
 
@@ -73,7 +73,7 @@ P(C_{i,j} = w \mid M, S) =
 \begin{cases} 
 0, & \text{se } C_{i,j} \in S, \\
 (||B|| - ||S||)^{-1}, & \text{se } H = \emptyset \text{ e } C_{i,j} \notin S, \\
-||cap H_{i,j}||^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
+||\bigcap H_{i,j}||^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
 \end{cases}
 $$
 
@@ -94,7 +94,7 @@ $$
 Seja $M$ o conjunto das células já vizitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
 
 $$
-V(\mathcal{C}^S_n):=\lbrace \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \rbrace.
+V(\mathcal{C}^S_n):=\big\lbrace \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \big\rbrace.
 $$
 
 Assim, cada configuração $\mathbf{C}\in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.
