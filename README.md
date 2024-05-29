@@ -51,7 +51,7 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
 
 $$
-A = \text{adj}(C) = \{ a_{u,v} \in B \mid \exists \, (i,j) \in C, \, (u,v) \in \{ (i+1,j), (i-1,j), (i,j+1), (i,j-1) \} \}
+A = \text{adj}(C) = \bigcup_{(i,j)\in C}\big\{ (i+1,j), (i-1,j), (i,j+1), (i,j-1)\big\}
 $$
 
 #### Exemplo
@@ -85,23 +85,26 @@ Esta versão foi abandonada após a gernaralização a seguir. Mas caso queira v
 ### Generalização da Distribuição de Probabilidades
 
 #### Definição
-Denotamos por $\mathcal{C_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
+Denotamos por $\mathcal{C^S_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
+
 $$
-\mathcal{C_n}:=\{ C\subset S^c \mid ||C||=n \}.
-$$
-Seja $M$ o conjunto das células com indicação de perigo. Definimos o conjunto das configurações válidas por:
-$$
-\mathbb{V}:=\{ \mathbf{C}\in\mathcal{C_n} \mid adj(\mathbf{C})\cap M = \emptyset \}.
+\mathcal{C}^S_n:=\big\{ C\subset S^c \mid ||C||=n \big\}.
 $$
 
-Assim, cada configuração $\mathbf{C}\in\mathcal{C_n}$ representa uma possível distribuição dos perigos indicados.
+Seja $M$ o conjunto das células já vizitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
+
+$$
+V(\mathcal{C}^S_n):=\big\{ \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \big\}.
+$$
+
+Assim, cada configuração $\mathbf{C}\in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.
 
 #### Probabilidade de Perigo
 
 $$
 P(C_{i,j}=p|M,S)=\begin{cases}
 0, &\text{ se }C_{i,j}\in S,\\
-\frac{||\{\mathbf{C}\in\mathcal{C_n}\mid C_{i,j}\in\mathbf{C}\}||}{||\mathbb{V}||}, &\text{ se }C_{i,j}\notin S.
+\frac{\big|\big|\big\{\mathbf{C}\in V(\mathcal{C}^S_n) \mid C_{i,j}\in\mathbf{C}\big\}\big|\big|}{\big|\big|V(\mathcal{C}^S_n)\big|\big|}, &\text{ se }C_{i,j}\notin S.
 \end{cases}
 $$
 
