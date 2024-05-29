@@ -51,11 +51,11 @@ No Wumpus World, o jogador move um personagem através de um grid 4x4, onde cada
 Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
 
 $$
-A = \text{adj}(C) = \bigcup_{(i,j)\in C}\big\{ (i+1,j), (i-1,j), (i,j+1), (i,j-1)\big\}
+A = \text{adj}(C) = cup_{(i,j)\in C}\lbrace (i+1,j), (i-1,j), (i,j+1), (i,j-1)\rbrace
 $$
 
 #### Exemplo
-Seja $C = \{ c_{1,1} \}$, então $\text{adj}(C) = \{ c_{1,2}, c_{2,1} \}$.
+Seja $C = \lbrace c_{1,1} \rbrace$, então $\text{adj}(C) = \lbrace c_{1,2}, c_{2,1} \rbrace$.
 
 #### Definição de Subconjuntos
 Definimos:
@@ -63,7 +63,7 @@ Definimos:
 - $S$ o conjunto das células seguras por dedução.
 - $S^c := B \setminus S$.
 - $M$ o conjunto das células que indicam que há algum perigo na adjacência.
-- $H := \{ H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \}$.
+- $H := \lbrace H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \rbrace$.
 
 Note que $M \subset V \subset S$.
 
@@ -73,7 +73,7 @@ P(C_{i,j} = w \mid M, S) =
 \begin{cases} 
 0, & \text{se } C_{i,j} \in S, \\
 (||B|| - ||S||)^{-1}, & \text{se } H = \emptyset \text{ e } C_{i,j} \notin S, \\
-||\bigcap H_{i,j}||^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
+||cap H_{i,j}||^{-1}, & \text{se } H \neq \emptyset \text{ e } C_{i,j} \notin S.
 \end{cases}
 $$
 
@@ -88,13 +88,13 @@ Esta versão foi abandonada após a gernaralização a seguir. Mas caso queira v
 Denotamos por $\mathcal{C^S_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
 
 $$
-\mathcal{C}^S_n:=\big\{ C\subset S^c \mid ||C||=n \big\}.
+\mathcal{C}^S_n:=\big\lbrace C\subset S^c \mid ||C||=n \big\rbrace.
 $$
 
 Seja $M$ o conjunto das células já vizitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
 
 $$
-V(\mathcal{C}^S_n):=\big\{ \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \big\}.
+V(\mathcal{C}^S_n):=\lbrace \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \rbrace.
 $$
 
 Assim, cada configuração $\mathbf{C}\in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.
@@ -104,7 +104,7 @@ Assim, cada configuração $\mathbf{C}\in V(\mathcal{C}^S_n)$ representa uma pos
 $$
 P(C_{i,j}=p|M,S)=\begin{cases}
 0, &\text{ se }C_{i,j}\in S,\\
-\frac{\big|\big|\big\{\mathbf{C}\in V(\mathcal{C}^S_n) \mid C_{i,j}\in\mathbf{C}\big\}\big|\big|}{\big|\big|V(\mathcal{C}^S_n)\big|\big|}, &\text{ se }C_{i,j}\notin S.
+\frac{||\lbrace\mathbf{C}\in V(\mathcal{C}^S_n) \mid C_{i,j}\in\mathbf{C}\rbrace||}{||V(\mathcal{C}^S_n)||}, &\text{ se }C_{i,j}\notin S.
 \end{cases}
 $$
 
