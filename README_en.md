@@ -50,11 +50,11 @@ In Wumpus World, the player moves a character through a 4x4 grid, where each cel
 Let $C$ be a subset of cells in the board $B$. The adjacency set $A = \text{adj}(C)$ is given by all cells adjacent to the cells in $C$ in the directions above, below, to the right, and to the left.
 
 $$
-A = \text{adj}(C) = \{ a_{u,v} \in B \mid \exists \, (i,j) \in C, \, (u,v) \in \{ (i+1,j), (i-1,j), (i,j+1), (i,j-1) \} \}
+A = \text{adj}(C) = \bigcup_{(i,j)\in C}\big\lbrace (i+1,j), (i-1,j), (i,j+1), (i,j-1)\big\rbrace
 $$
 
 #### Example
-Let $C = \{ c_{1,1} \}$, then $\text{adj}(C) = \{ c_{1,2}, c_{2,1} \}$.
+Let $C = \lbrace c_{1,1} \rbrace$, then $\text{adj}(C) = \lbrace c_{1,2}, c_{2,1} \rbrace$.
 
 #### Definition of Subsets
 We define:
@@ -62,7 +62,7 @@ We define:
 - $S$ as the set of cells deduced to be safe.
 - $S^c := B \setminus S$.
 - $M$ as the set of cells indicating that there is some danger in the adjacency.
-- $H := \{ H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \}$.
+- $H := \lbrace H_{i,j} \in 2^B \mid H_{i,j} = \text{adj}(m_{i,j}) \cap S^c, \forall m_{i,j} \in M \rbrace$.
 
 Note that $M \subset V \subset S$.
 
@@ -86,13 +86,13 @@ This version was abandoned after the generalization below. However, if you want 
 We denote by $\mathcal{C_n}$ the set of all possible combinations of $n$ cells from $S^c$ that can contain $n$ hazards (whether pits or the Wumpus). That is,
 
 $$
-\mathcal{C_n} := \{ C \subset S^c \mid ||C|| = n \}.
+\mathcal{C}^S_n:=\big\lbrace C\subset S^c \mid ||C||=n \big\rbrace.
 $$
 
 Let $M$ be the set of cells indicating danger. We define the set of valid configurations as:
 
 $$
-\mathbb{V} := \{ \mathbf{C} \in \mathcal{C_n} \mid \text{adj}(\mathbf{C}) \cap M = \emptyset \}.
+V(\mathcal{C}^S_n):=\big\lbrace \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \big\rbrace.
 $$
 
 Thus, each configuration $\mathbf{C} \in \mathcal{C_n}$ represents a possible distribution of the indicated hazards.
@@ -100,10 +100,9 @@ Thus, each configuration $\mathbf{C} \in \mathcal{C_n}$ represents a possible di
 #### Hazard Probability
 
 $$
-P(C_{i,j} = p \mid M, S) =
-\begin{cases}
-0, & \text{if } C_{i,j} \in S,\\
-\frac{||\{\mathbf{C} \in \mathcal{C_n} \mid C_{i,j} \in \mathbf{C}\}||}{||\mathbb{V}||}, & \text{if } C_{i,j} \notin S.
+P(C_{i,j}=p|M,S)=\begin{cases}
+0, &\text{ se }C_{i,j}\in S,\\
+\frac{||\lbrace\mathbf{C}\in V(\mathcal{C}^S_n) \mid C_{i,j}\in\mathbf{C}\rbrace||}{||V(\mathcal{C}^S_n)||}, &\text{ se }C_{i,j}\notin S.
 \end{cases}
 $$
 

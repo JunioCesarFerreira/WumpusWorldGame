@@ -79,7 +79,7 @@ $$
 
 A notação $||A||$ indica a cardinalidade do conjunto $A$.
 
-Esta versão foi abandonada após a gernaralização a seguir. Mas caso queira ver implementação é feita na classe [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs).
+E modelo é implementado na classe [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs). No entanto, esta foi substituida pela gernaralização a seguir.
 
 
 ### Generalização da Distribuição de Probabilidades
