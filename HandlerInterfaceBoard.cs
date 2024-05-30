@@ -18,6 +18,11 @@
         // Posição atual do jogador
         public Button ScopeButton = new();
 
+        public Button[,] GetButtonsBoard() 
+        { 
+            return _buttonsBoard; 
+        }
+
         public HandlerInterfaceBoard(Button[,] buttons)
         {
             _buttonsBoard = buttons;
@@ -124,6 +129,11 @@
                     }
                 }
             }
+        }
+
+        public bool IsGold()
+        {
+            return ScopeButton.BackColor == _goldColor;
         }
 
         private void TagStench(int i, int j)

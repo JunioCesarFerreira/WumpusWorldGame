@@ -80,7 +80,7 @@
             button_show = new Button();
             label_score = new Label();
             label0 = new Label();
-            button_auto = new Button();
+            button_step = new Button();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -810,7 +810,7 @@
             tableLayoutPanel2.Controls.Add(button_show, 1, 0);
             tableLayoutPanel2.Controls.Add(label_score, 4, 0);
             tableLayoutPanel2.Controls.Add(label0, 3, 0);
-            tableLayoutPanel2.Controls.Add(button_auto, 2, 0);
+            tableLayoutPanel2.Controls.Add(button_step, 2, 0);
             tableLayoutPanel2.Location = new Point(15, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
@@ -874,21 +874,21 @@
             label0.TabIndex = 6;
             label0.Text = "score:";
             // 
-            // button_auto
+            // button_step
             // 
-            button_auto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_auto.BackColor = Color.FromArgb(64, 64, 64);
-            button_auto.FlatAppearance.BorderSize = 0;
-            button_auto.FlatStyle = FlatStyle.Flat;
-            button_auto.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_auto.ForeColor = Color.White;
-            button_auto.Location = new Point(275, 3);
-            button_auto.Name = "button_auto";
-            button_auto.Size = new Size(130, 35);
-            button_auto.TabIndex = 8;
-            button_auto.Text = "auto";
-            button_auto.UseVisualStyleBackColor = false;
-            button_auto.MouseClick += Button_Auto_MouseClick;
+            button_step.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_step.BackColor = Color.FromArgb(64, 64, 64);
+            button_step.FlatAppearance.BorderSize = 0;
+            button_step.FlatStyle = FlatStyle.Flat;
+            button_step.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_step.ForeColor = Color.White;
+            button_step.Location = new Point(275, 3);
+            button_step.Name = "button_step";
+            button_step.Size = new Size(130, 35);
+            button_step.TabIndex = 8;
+            button_step.Text = "step";
+            button_step.UseVisualStyleBackColor = false;
+            button_step.MouseClick += Button_Step_MouseClick;
             // 
             // FormGame
             // 
@@ -965,6 +965,6 @@
         private Label label12;
         private Label label11;
         private Label label16;
-        private Button button_auto;
+        private Button button_step;
     }
 }

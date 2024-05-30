@@ -19,6 +19,7 @@ namespace WumpusWorld
 
         // Jogador
         private Player player = new();
+        private SmartAgent agent;
 
         // Construtor do Form
         public FormGame()
@@ -77,6 +78,8 @@ namespace WumpusWorld
             _pitPd.Initialize(player.Position);
 
             UpdateProbDist();
+
+            agent = new SmartAgent(player, _board, _handlerBoard, _wumpusPd, _pitPd);
         }
 
         // Atualiza tabela de distribuições de probabilidades
@@ -282,81 +285,9 @@ namespace WumpusWorld
         }
 
 
-        private void Button_Auto_MouseClick(object sender, MouseEventArgs e)
+        private void Button_Step_MouseClick(object sender, MouseEventArgs e)
         {
-            /*
-            while (scopeButton.BackColor != _goldColor)
-            {
-                Point? betterMove = SearchBetterAdj();
-                if (betterMove.HasValue)
-                {
-                    player.Direction = Redirect(player.Position, betterMove.Value);
-                    scopeButton.Image = _images["player_" + player.Direction];
-                    
-                }
-                else
-                {
-                    MessageBox.Show("Não foi possível determinar melhor movimento.");
-                    break;
-                }
-            }
-            */
+            agent.Step();
         }
-        /*
-        private string Redirect(Point pos, Point dest)
-        {
-            string newDirection = "";
-            if (pos.X == dest.X)
-            {
-                if (dest.Y > pos.Y)
-                {
-                    newDirection = "up";
-                }
-                else
-                {
-                    newDirection = "down";
-                }
-            }
-            if (pos.Y == dest.Y)
-            {
-                if (pos.X > dest.X)
-                {
-                    newDirection = "left";
-                }
-                else
-                {
-                    newDirection = "right";
-                }
-            }
-            return newDirection;
-        }
-
-        private Point? SearchBetterAdj()
-        {
-            List<Point> adj = new List<Point>();
-            Point p = player.Position;
-            if (p.X > 0) adj.Add(new(p.X - 1, p.Y));
-            if (p.Y > 0) adj.Add(new(p.X, p.Y-1));
-            if (p.X < dim) adj.Add(new(p.X+1, p.Y));
-            if (p.Y < dim) adj.Add(new(p.X, p.Y + 1));
-            
-            if (!adj.Any()) return null;
-
-            UpdateProbDist();
-
-            Point? ptMin = null;
-            float min = float.PositiveInfinity;
-            foreach (Point pt in adj)
-            {
-                float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
-                if (sum < min)
-                {
-                    min = sum;
-                    ptMin = pt;
-                }
-            }
-            return ptMin;
-        }
-        */
     }
 }

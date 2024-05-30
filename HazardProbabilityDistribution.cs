@@ -12,6 +12,16 @@
 
         public float[,] ProbDist { get { return _probDist; } }
 
+        public bool IsSafe(int i, int j)
+        {
+            return _safe[i, j];
+        }
+
+        public bool IsViseted(int i, int j)
+        {
+            return _visited[i, j];
+        }
+
         /// <summary>
         /// Construtor
         /// </summary>
