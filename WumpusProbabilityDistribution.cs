@@ -8,7 +8,6 @@
         private readonly float[,] _probDist;
         private readonly bool[,] _safe;
         private readonly bool[,] _visited;
-        private bool found = false;
 
         public float[,] ProbDist { get { return _probDist; } }
 

@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
-
-namespace WumpusWorld
+﻿namespace WumpusWorld
 {
     internal class SmartAgent
     {

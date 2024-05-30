@@ -258,7 +258,7 @@ namespace WumpusWorld
                 _handlerBoard.DisableAll();
                 return true;
             }
-            if (_board.Pits.Where(p => p == player.Position).Any())
+            if (_board.IsPit(player.Position))
             {
                 UpdateScore(-1000);
                 MessageBox.Show("you fell into the pit and died!");
@@ -283,7 +283,6 @@ namespace WumpusWorld
             player.Score += value;
             label_score.Text = player.Score.ToString();
         }
-
 
         private void Button_Step_MouseClick(object sender, MouseEventArgs e)
         {

@@ -80,7 +80,7 @@
                 _buttonsBoard[point.X, point.Y].BackColor = _openedColor;
                 _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _openedColor;
             }
-            if (board.Pits.Where(p => p == point).Any())
+            if (board.IsPit(point))
             {
                 _buttonsBoard[point.X, point.Y].BackColor = _pitColor;
                 _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _pitColor;
