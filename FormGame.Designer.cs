@@ -37,9 +37,9 @@
             button_up = new Button();
             button_right = new Button();
             tableLayoutPanel5 = new TableLayoutPanel();
+            button_go = new Button();
             button_get = new Button();
             button_arrow = new Button();
-            button_go = new Button();
             label_scream = new Label();
             tableLayoutPanel6 = new TableLayoutPanel();
             label16 = new Label();
@@ -76,9 +76,10 @@
             button11 = new Button();
             button12 = new Button();
             tableLayoutPanel2 = new TableLayoutPanel();
-            label_score = new Label();
+            button_auto = new Button();
             button_new_game = new Button();
             button_show = new Button();
+            label_score = new Label();
             label0 = new Label();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -230,6 +231,22 @@
             tableLayoutPanel5.Size = new Size(184, 166);
             tableLayoutPanel5.TabIndex = 1;
             // 
+            // button_go
+            // 
+            button_go.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_go.BackColor = Color.FromArgb(64, 64, 64);
+            button_go.FlatAppearance.BorderSize = 0;
+            button_go.FlatStyle = FlatStyle.Flat;
+            button_go.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_go.ForeColor = Color.White;
+            button_go.Location = new Point(3, 3);
+            button_go.Name = "button_go";
+            button_go.Size = new Size(55, 49);
+            button_go.TabIndex = 5;
+            button_go.Text = "go";
+            button_go.UseVisualStyleBackColor = false;
+            button_go.Click += Button_Go_Click;
+            // 
             // button_get
             // 
             button_get.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -261,22 +278,6 @@
             button_arrow.Text = "arrow";
             button_arrow.UseVisualStyleBackColor = false;
             button_arrow.Click += Button_Arrow_Click;
-            // 
-            // button_go
-            // 
-            button_go.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_go.BackColor = Color.FromArgb(64, 64, 64);
-            button_go.FlatAppearance.BorderSize = 0;
-            button_go.FlatStyle = FlatStyle.Flat;
-            button_go.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_go.ForeColor = Color.White;
-            button_go.Location = new Point(3, 3);
-            button_go.Name = "button_go";
-            button_go.Size = new Size(55, 49);
-            button_go.TabIndex = 5;
-            button_go.Text = "go";
-            button_go.UseVisualStyleBackColor = false;
-            button_go.Click += Button_Go_Click;
             // 
             // label_scream
             // 
@@ -799,16 +800,17 @@
             // tableLayoutPanel2
             // 
             tableLayoutPanel2.Anchor = AnchorStyles.Top;
-            tableLayoutPanel2.ColumnCount = 4;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel2.Controls.Add(label_score, 3, 0);
+            tableLayoutPanel2.ColumnCount = 5;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             tableLayoutPanel2.Controls.Add(button_new_game, 0, 0);
             tableLayoutPanel2.Controls.Add(button_show, 1, 0);
-            tableLayoutPanel2.Controls.Add(label0, 2, 0);
+            tableLayoutPanel2.Controls.Add(label_score, 4, 0);
+            tableLayoutPanel2.Controls.Add(label0, 3, 0);
+            tableLayoutPanel2.Controls.Add(button_auto, 2, 0);
             tableLayoutPanel2.Location = new Point(15, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
@@ -816,17 +818,21 @@
             tableLayoutPanel2.Size = new Size(681, 41);
             tableLayoutPanel2.TabIndex = 2;
             // 
-            // label_score
+            // button_auto
             // 
-            label_score.Anchor = AnchorStyles.Left;
-            label_score.AutoSize = true;
-            label_score.Font = new Font("Segoe UI", 10F);
-            label_score.ForeColor = Color.White;
-            label_score.Location = new Point(513, 11);
-            label_score.Name = "label_score";
-            label_score.Size = new Size(17, 19);
-            label_score.TabIndex = 7;
-            label_score.Text = "0";
+            button_auto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_auto.BackColor = Color.FromArgb(64, 64, 64);
+            button_auto.FlatAppearance.BorderSize = 0;
+            button_auto.FlatStyle = FlatStyle.Flat;
+            button_auto.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_auto.ForeColor = Color.White;
+            button_auto.Location = new Point(275, 3);
+            button_auto.Name = "button_auto";
+            button_auto.Size = new Size(130, 35);
+            button_auto.TabIndex = 8;
+            button_auto.Text = "auto";
+            button_auto.UseVisualStyleBackColor = false;
+            button_auto.MouseClick += Button_Auto_MouseClick;
             // 
             // button_new_game
             // 
@@ -838,7 +844,7 @@
             button_new_game.ForeColor = Color.White;
             button_new_game.Location = new Point(3, 3);
             button_new_game.Name = "button_new_game";
-            button_new_game.Size = new Size(164, 35);
+            button_new_game.Size = new Size(130, 35);
             button_new_game.TabIndex = 5;
             button_new_game.Text = "new game";
             button_new_game.UseVisualStyleBackColor = false;
@@ -852,13 +858,25 @@
             button_show.FlatStyle = FlatStyle.Flat;
             button_show.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button_show.ForeColor = Color.White;
-            button_show.Location = new Point(173, 3);
+            button_show.Location = new Point(139, 3);
             button_show.Name = "button_show";
-            button_show.Size = new Size(164, 35);
+            button_show.Size = new Size(130, 35);
             button_show.TabIndex = 1;
             button_show.Text = "show";
             button_show.UseVisualStyleBackColor = false;
             button_show.MouseClick += Button_Show_MouseClick;
+            // 
+            // label_score
+            // 
+            label_score.Anchor = AnchorStyles.Left;
+            label_score.AutoSize = true;
+            label_score.Font = new Font("Segoe UI", 10F);
+            label_score.ForeColor = Color.White;
+            label_score.Location = new Point(547, 11);
+            label_score.Name = "label_score";
+            label_score.Size = new Size(17, 19);
+            label_score.TabIndex = 7;
+            label_score.Text = "0";
             // 
             // label0
             // 
@@ -866,7 +884,7 @@
             label0.AutoSize = true;
             label0.Font = new Font("Segoe UI", 10F);
             label0.ForeColor = Color.White;
-            label0.Location = new Point(466, 11);
+            label0.Location = new Point(500, 11);
             label0.Name = "label0";
             label0.Size = new Size(41, 19);
             label0.TabIndex = 6;
@@ -947,5 +965,6 @@
         private Label label12;
         private Label label11;
         private Label label16;
+        private Button button_auto;
     }
 }

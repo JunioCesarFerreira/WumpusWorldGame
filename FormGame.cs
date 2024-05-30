@@ -3,45 +3,19 @@ namespace WumpusWorld
     public partial class FormGame : Form
     {
         private const int dim = 4; // Dimensão do problema
-        
-        private readonly Button[,] _buttons; // Matriz de botões que compõe o tabuleiro
-        private readonly Label[,] _labels;   // Matriz de labels de probabilidades
 
-        private readonly Dictionary<string, Image> _images;  
+        private readonly HandlerInterfaceBoard _handlerBoard; 
 
         private readonly ToolTip _toolTip; // ToolTip dos botões de controle
 
-        // Cores utilizadas nas células do tabuleiro 
-        private readonly Color _closedColor = Color.FromArgb(64, 40, 32);
-        private readonly Color _openedColor = Color.FromArgb(64, 64, 64);
-        private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
-        private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
-
-        // Pontos de localização dos elementos do jogo
-        private Point index = new(0, 0);
-        private Point[] pits = { new(0, 3), new(2, 0), new(3, 2) };
-        private Point wumpus = new(1, 2);
-        private Point gold = new(3, 3);
-
-        // Posição atual do jogador
-        private Button scopeButton = new();
-
-        // Indicares do jogo
-        private bool wumpusIsDead = false;
-        private int playerScore = 0;
+        private readonly Label[,] _labels;   // Matriz de labels de probabilidades
 
         // Distribuições de probabilidades
         private readonly HazardProbabilityDistribution _wumpusPd;
         private readonly HazardProbabilityDistribution _pitPd; // Em desenvolvimento...
 
-        // Classe Jogador
-        class Player
-        {
-            public string Direction = "down";
-            public bool HaveGold = false;
-            public bool HaveArrow = true;
-            public bool HeardScream = false;
-        }
+        private readonly Board _board = new();
+
         private Player player = new();
 
 
@@ -51,14 +25,7 @@ namespace WumpusWorld
 
             _toolTip = new ToolTip();
 
-            string[] pathImgs = Directory.GetFiles("img");
-            _images = new Dictionary<string, Image>(6);
-            foreach (string path in pathImgs)
-            {
-                string name = Path.GetFileNameWithoutExtension(path);
-                _images[name] = Image.FromFile(path);
-            }
-            _buttons = new Button[dim, dim]
+            var buttons = new Button[dim, dim]
             {
                 { button1, button5, button9, button13 },
                 { button2, button6, button10, button14 },
@@ -73,6 +40,8 @@ namespace WumpusWorld
                 {label13, label14, label15, label16}
             };
 
+            _handlerBoard = new HandlerInterfaceBoard(buttons);
+
             _toolTip.SetToolTip(button_left, "Move Left (Arrow Left)");
             _toolTip.SetToolTip(button_right, "Move Right (Arrow Right)");
             _toolTip.SetToolTip(button_up, "Move Up (Arrow Up)");
@@ -81,47 +50,38 @@ namespace WumpusWorld
             _toolTip.SetToolTip(button_get, "Get Gold (Space)");
             _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
 
-            _wumpusPd = new HazardProbabilityDistribution(_buttons, "stench", 1);
-            _pitPd = new HazardProbabilityDistribution(_buttons, "breeze", 3);
+            _wumpusPd = new HazardProbabilityDistribution(buttons, "stench", 1);
+            _pitPd = new HazardProbabilityDistribution(buttons, "breeze", 3);
 
+            _board = new Board();
             StartBoard();
         }
 
         // Inicializa Tabuleiro
         private void StartBoard()
         {
-            foreach (Button button in _buttons)
-            {
-                button.Text = "";
-                button.ForeColor = _closedColor;
-                button.BackColor = _closedColor;
-                button.BackgroundImage = null;
-                button.Image = null;
-                button.BackgroundImageLayout = ImageLayout.Stretch;
-                button.FlatAppearance.MouseOverBackColor = _closedColor;
-                button.FlatAppearance.MouseDownBackColor = _closedColor;
-                button.Enabled = true;
-            }
-            playerScore = 0;
-            label_score.Text = "0";
+            _handlerBoard.StartBoard();
+
             player = new Player();
-            index = new(0, 0);
-            wumpusIsDead = false;
+
+            label_score.Text = _board.PlayerScore.ToString();
+
             button_arrow.Enabled = true;
-            scopeButton = _buttons[index.X, index.Y];
-            scopeButton.Image = _images["player_down"];
-            PaintButton(index, scopeButton);
-            Tagging();
+
+            _handlerBoard.Tagging(_board);
+            
             label_scream.Visible = false;
-            _wumpusPd.Initialize(index);
-            _pitPd.Initialize(index);
+
+            _wumpusPd.Initialize(player.Position);
+            _pitPd.Initialize(player.Position);
+
             UpdateProbDist();
         }
 
         // Atualiza tabela de distribuições de probabilidades
         private void UpdateProbDist()
         {
-            if (wumpusIsDead) _wumpusPd.ClearProbabilityDistribution();
+            if (_board.WumpusIsDead) _wumpusPd.ClearProbabilityDistribution();
             else _wumpusPd.CalculateProbabilities();
 
             _pitPd.CalculateProbabilities();
@@ -149,40 +109,19 @@ namespace WumpusWorld
 
         private void Button_New_Game_MouseClick(object sender, MouseEventArgs e)
         {
-            var rand = new Random();
-            var positions = new List<Point>();
-
-            while (positions.Count < 5)
-            {
-                int x = rand.Next(0, _buttons.GetLength(0));
-                int y = rand.Next(0, _buttons.GetLength(1));
-
-                var p = new Point(x, y);
-
-                if (p != new Point(0, 0) && !positions.Contains(p))
-                {
-                    positions.Add(p);
-                }
-            }
-
-            gold = positions[0];
-            pits[0] = positions[1];
-            pits[1] = positions[2];
-            pits[2] = positions[3];
-            wumpus = positions[4];
-
+            _board.NewGame(_handlerBoard.DimX, _handlerBoard.DimY);
             StartBoard();
         }
 
         private void Button_Show_MouseClick(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < _buttons.GetLength(0); i++)
+            for (int i = 0; i < _handlerBoard.DimX; i++)
             {
-                for (int j = 0; j < _buttons.GetLength(1); j++)
+                for (int j = 0; j < _handlerBoard.DimY; j++)
                 {
                     Point p = new(i, j);
-                    PaintButton(p, _buttons[i, j]);
-                    BackgroundImageButton(p, _buttons[i, j]);
+                    _handlerBoard.PaintButton(p, _board, player);
+                    _handlerBoard.BackgroundImageButton(p, _board, player);
                 }
             }
         }
@@ -192,7 +131,7 @@ namespace WumpusWorld
             if (sender is Button button)
             {
                 player.Direction = button.Name.Split("_")[1];
-                scopeButton.Image = _images["player_" + player.Direction];
+                _handlerBoard.UpdatePlayerDirection(player);
             }
         }
 
@@ -201,30 +140,30 @@ namespace WumpusWorld
             switch (player.Direction)
             {
                 case "up":
-                    if (index.Y < game_grid.RowCount - 1)
+                    if (player.Position.Y < game_grid.RowCount - 1)
                     {
-                        index.Y++;
+                        player.Position.Y++;
                         MovePlayer();
                     }
                     break;
                 case "down":
-                    if (index.Y > 0)
+                    if (player.Position.Y > 0)
                     {
-                        index.Y--;
+                        player.Position.Y--;
                         MovePlayer();
                     }
                     break;
                 case "left":
-                    if (index.X > 0)
+                    if (player.Position.X > 0)
                     {
-                        index.X--;
+                        player.Position.X--;
                         MovePlayer();
                     }
                     break;
                 case "right":
-                    if (index.X < game_grid.RowCount - 1)
+                    if (player.Position.X < game_grid.RowCount - 1)
                     {
-                        index.X++;
+                        player.Position.X++;
                         MovePlayer();
                     }
                     break;
@@ -233,12 +172,10 @@ namespace WumpusWorld
 
         private void Button_Get_Click(object sender, EventArgs e)
         {
-            if (index == gold && !player.HaveGold)
+            if (player.Position == _board.Gold && !player.HaveGold)
             {
                 UpdateScore(1000);
-                scopeButton.BackgroundImage = null;
-                scopeButton.BackColor = _openedColor;
-                scopeButton.FlatAppearance.MouseOverBackColor = _openedColor;
+                _handlerBoard.RemoveGold();
                 player.HaveGold = true;
             }
         }
@@ -248,27 +185,8 @@ namespace WumpusWorld
             if (player.HaveArrow)
             {
                 UpdateScore(-10);
-                player.HaveArrow = false;
                 button_arrow.Enabled = false;
-                switch (player.Direction)
-                {
-                    case "up":
-                        if (index.X == wumpus.X && index.Y + 1 == wumpus.Y)
-                            KillWumpus();
-                        break;
-                    case "down":
-                        if (index.X == wumpus.X && index.Y - 1 == wumpus.Y)
-                            KillWumpus();
-                        break;
-                    case "left":
-                        if (index.X - 1 == wumpus.X && index.Y == wumpus.Y)
-                            KillWumpus();
-                        break;
-                    case "right":
-                        if (index.X + 1 == wumpus.X && index.Y == wumpus.Y)
-                            KillWumpus();
-                        break;
-                }
+                _board.PlayerShootsArrow(player, KillWumpus);
             }
         }
 
@@ -276,149 +194,50 @@ namespace WumpusWorld
         private void MovePlayer()
         {
             UpdateScore(-1);
-            _buttons[index.X, index.Y].Image = scopeButton.Image;
-            scopeButton.Image = null;
-            scopeButton = _buttons[index.X, index.Y];
-            PaintButton(index, scopeButton);
-            BackgroundImageButton(index, scopeButton);
-            WorstHappened();
 
-            _wumpusPd.CheckSafety(index, wumpusIsDead);
-            _pitPd.CheckSafety(index, false);
+            _handlerBoard.MovePlayer(player, _board);
 
-            UpdateProbDist();
+            if (!WorstHappened())
+            {
+                _wumpusPd.CheckSafety(player.Position, _board.WumpusIsDead);
+                _pitPd.CheckSafety(player.Position, false);
+
+                UpdateProbDist();
+            }
         }
 
-        private void WorstHappened()
-        {;
-            if ((index == wumpus && !wumpusIsDead))
+        private bool WorstHappened()
+        {
+            ;
+            if (player.Position == _board.Wumpus && !_board.WumpusIsDead)
             {
                 UpdateScore(-1000);
                 MessageBox.Show("you were devoured by the Wumpus!");
-                foreach (var b in _buttons) b.Enabled = false;
+                _handlerBoard.DisableAll();
+                return true;
             }
-            if (pits.Where(p => p == index).Any())
-            {;
+            if (_board.Pits.Where(p => p == player.Position).Any())
+            {
                 UpdateScore(-1000);
                 MessageBox.Show("you fell into the pit and died!");
-                foreach (var b in _buttons) b.Enabled = false;
+                _handlerBoard.DisableAll();
+                return true;
             }
-        }
-
-        private void PaintButton(Point point, Button button)
-        {
-            button.BackColor = _openedColor;
-            button.FlatAppearance.MouseOverBackColor = _openedColor;
-            button.ForeColor = Color.White;
-            if (point == wumpus)
-            {
-                button.BackColor = _openedColor;
-                button.FlatAppearance.MouseOverBackColor = _openedColor;
-            }
-            if (pits.Where(p => p == point).Any())
-            {
-                button.BackColor = _pitColor;
-                button.FlatAppearance.MouseOverBackColor = _pitColor;
-            }
-            if (point == gold && !player.HaveGold)
-            {
-                button.BackColor = _goldColor;
-                button.FlatAppearance.MouseOverBackColor = _goldColor;
-            }
-        }
-
-        private bool IsWumpus(int i, int j)
-        {
-            return i == wumpus.X && j == wumpus.Y;
-        }
-
-        private bool IsPit(int i, int j)
-        {
-            return pits.Where(p => i == p.X && j == p.Y).Any();
-        }
-
-        private void TagStench(int i, int j)
-        {
-            if (!_buttons[i, j].Text.Contains("Stench"))
-            {
-                _buttons[i, j].Text += "Stench\n";
-            }
-        }
-
-        private void TagBreeze(int i, int j)
-        {
-            if (!_buttons[i, j].Text.Contains("Breeze"))
-            {
-                _buttons[i, j].Text += "Breeze\n";
-            }
-        }
-
-        private void Tagging()
-        {
-            int maxX = _buttons.GetLength(0) - 1;
-            int maxY = _buttons.GetLength(1) - 1;
-            for (int i = 0; i <= maxX; i++)
-            {
-                for (int j = 0; j <= maxY; j++)
-                {
-                    if (i + 1 <= maxX)
-                    {
-                        if (IsWumpus(i + 1, j)) TagStench(i, j);
-                        if (IsPit(i + 1, j)) TagBreeze(i, j);
-                    }
-                    if (j + 1 <= maxY)
-                    {
-                        if (IsWumpus(i, j + 1)) TagStench(i, j);
-                        if (IsPit(i, j + 1)) TagBreeze(i, j);
-                    }
-                    if (i - 1 >= 0)
-                    {
-                        if (IsWumpus(i - 1, j)) TagStench(i, j);
-                        if (IsPit(i - 1, j)) TagBreeze(i, j);
-                    }
-                    if (j - 1 >= 0)
-                    {
-                        if (IsWumpus(i, j - 1)) TagStench(i, j);
-                        if (IsPit(i, j - 1)) TagBreeze(i, j);
-                    }
-                }
-            }
-        }
-
-        private void BackgroundImageButton(Point point, Button button)
-        {
-            if (point == wumpus)
-            {
-                button.BackgroundImage = wumpusIsDead ? _images["dead_wumpus"] : _images["wumpus"];
-            }
-            if (point == gold && !player.HaveGold)
-            {
-                button.BackgroundImage = _images["gold"];
-            }
+            return false;
         }
 
         private void KillWumpus()
         {
-            wumpusIsDead = true;
+            _board.WumpusIsDead = true;
             player.HeardScream = true;
             label_scream.Visible = true;
-            foreach (var b in _buttons)
-            {
-                if (b.BackgroundImage != null)
-                {
-                    if (b.BackgroundImage == _images["wumpus"])
-                    {
-                        b.BackgroundImage = _images["dead_wumpus"];
-                        break;
-                    }
-                }
-            }
+            _handlerBoard.UpdateDeadWumpus();
         }
 
         private void UpdateScore(int value)
         {
-            playerScore += value;
-            label_score.Text = playerScore.ToString();
+            _board.PlayerScore += value;
+            label_score.Text = _board.PlayerScore.ToString();
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -449,5 +268,82 @@ namespace WumpusWorld
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        private void Button_Auto_MouseClick(object sender, MouseEventArgs e)
+        {
+            /*
+            while (scopeButton.BackColor != _goldColor)
+            {
+                Point? betterMove = SearchBetterAdj();
+                if (betterMove.HasValue)
+                {
+                    player.Direction = Redirect(player.Position, betterMove.Value);
+                    scopeButton.Image = _images["player_" + player.Direction];
+                    
+                }
+                else
+                {
+                    MessageBox.Show("Não foi possível determinar melhor movimento.");
+                    break;
+                }
+            }
+            */
+        }
+        /*
+        private string Redirect(Point pos, Point dest)
+        {
+            string newDirection = "";
+            if (pos.X == dest.X)
+            {
+                if (dest.Y > pos.Y)
+                {
+                    newDirection = "up";
+                }
+                else
+                {
+                    newDirection = "down";
+                }
+            }
+            if (pos.Y == dest.Y)
+            {
+                if (pos.X > dest.X)
+                {
+                    newDirection = "left";
+                }
+                else
+                {
+                    newDirection = "right";
+                }
+            }
+            return newDirection;
+        }
+
+        private Point? SearchBetterAdj()
+        {
+            List<Point> adj = new List<Point>();
+            Point p = player.Position;
+            if (p.X > 0) adj.Add(new(p.X - 1, p.Y));
+            if (p.Y > 0) adj.Add(new(p.X, p.Y-1));
+            if (p.X < dim) adj.Add(new(p.X+1, p.Y));
+            if (p.Y < dim) adj.Add(new(p.X, p.Y + 1));
+            
+            if (!adj.Any()) return null;
+
+            UpdateProbDist();
+
+            Point? ptMin = null;
+            float min = float.PositiveInfinity;
+            foreach (Point pt in adj)
+            {
+                float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
+                if (sum < min)
+                {
+                    min = sum;
+                    ptMin = pt;
+                }
+            }
+            return ptMin;
+        }
+        */
     }
 }
