@@ -7,5 +7,6 @@
         public bool HaveGold = false;
         public bool HaveArrow = true;
         public bool HeardScream = false;
+        public int Score = 0;
     }
 }

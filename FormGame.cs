@@ -4,35 +4,37 @@ namespace WumpusWorld
     {
         private const int dim = 4; // Dimensão do problema
 
-        private readonly HandlerInterfaceBoard _handlerBoard; 
+        // Manipulador da interface do tabuleiro representada por botões
+        private readonly HandlerInterfaceBoard _handlerBoard;
 
-        private readonly ToolTip _toolTip; // ToolTip dos botões de controle
-
-        private readonly Label[,] _labels;   // Matriz de labels de probabilidades
+        // Matriz de labels de probabilidades
+        private readonly Label[,] _probabilityLabels;   
 
         // Distribuições de probabilidades
         private readonly HazardProbabilityDistribution _wumpusPd;
-        private readonly HazardProbabilityDistribution _pitPd; // Em desenvolvimento...
+        private readonly HazardProbabilityDistribution _pitPd;
 
+        // Tabuleiro que representa configuração do jogo atual
         private readonly Board _board = new();
 
+        // Jogador
         private Player player = new();
 
-
+        // Construtor do Form
         public FormGame()
         {
             InitializeComponent();
 
-            _toolTip = new ToolTip();
-
-            var buttons = new Button[dim, dim]
+            var boardButtons = new Button[dim, dim]
             {
                 { button1, button5, button9, button13 },
                 { button2, button6, button10, button14 },
                 { button3, button7, button11, button15 },
                 { button4, button8, button12, button16 },
             };
-            _labels = new Label[dim, dim]
+            _handlerBoard = new HandlerInterfaceBoard(boardButtons);
+
+            _probabilityLabels = new Label[dim, dim]
             {
                 {label1, label2, label3, label4},
                 {label5, label6, label7, label8},
@@ -40,18 +42,17 @@ namespace WumpusWorld
                 {label13, label14, label15, label16}
             };
 
-            _handlerBoard = new HandlerInterfaceBoard(buttons);
+            var tooltip = new ToolTip();
+            tooltip.SetToolTip(button_left, "Move Left (Arrow Left)");
+            tooltip.SetToolTip(button_right, "Move Right (Arrow Right)");
+            tooltip.SetToolTip(button_up, "Move Up (Arrow Up)");
+            tooltip.SetToolTip(button_down, "Move Down (Arrow Down)");
+            tooltip.SetToolTip(button_go, "Go (Enter)");
+            tooltip.SetToolTip(button_get, "Get Gold (Space)");
+            tooltip.SetToolTip(button_arrow, "Shoot Arrow (A)");
 
-            _toolTip.SetToolTip(button_left, "Move Left (Arrow Left)");
-            _toolTip.SetToolTip(button_right, "Move Right (Arrow Right)");
-            _toolTip.SetToolTip(button_up, "Move Up (Arrow Up)");
-            _toolTip.SetToolTip(button_down, "Move Down (Arrow Down)");
-            _toolTip.SetToolTip(button_go, "Go (Enter)");
-            _toolTip.SetToolTip(button_get, "Get Gold (Space)");
-            _toolTip.SetToolTip(button_arrow, "Shoot Arrow (A)");
-
-            _wumpusPd = new HazardProbabilityDistribution(buttons, "stench", 1);
-            _pitPd = new HazardProbabilityDistribution(buttons, "breeze", 3);
+            _wumpusPd = new HazardProbabilityDistribution(boardButtons, "stench", 1);
+            _pitPd = new HazardProbabilityDistribution(boardButtons, "breeze", 3);
 
             _board = new Board();
             StartBoard();
@@ -64,7 +65,7 @@ namespace WumpusWorld
 
             player = new Player();
 
-            label_score.Text = _board.PlayerScore.ToString();
+            label_score.Text = player.Score.ToString();
 
             button_arrow.Enabled = true;
 
@@ -102,17 +103,19 @@ namespace WumpusWorld
                     else
                         pitsText = _pitPd.ProbDist[j, i].ToString("F2");
 
-                    _labels[j, i].Text = $"W={wumpusText}\nP={pitsText}";
+                    _probabilityLabels[j, i].Text = $"W={wumpusText}\nP={pitsText}";
                 }
             }
         }
 
+        // Click do botão Novo Jogo
         private void Button_New_Game_MouseClick(object sender, MouseEventArgs e)
         {
             _board.NewGame(_handlerBoard.DimX, _handlerBoard.DimY);
             StartBoard();
         }
 
+        // Click do botão Mostrar
         private void Button_Show_MouseClick(object sender, MouseEventArgs e)
         {
             for (int i = 0; i < _handlerBoard.DimX; i++)
@@ -126,6 +129,7 @@ namespace WumpusWorld
             }
         }
 
+        // Clicks dos botões de direcionamento do jogador
         private void Directions_Click(object sender, MouseEventArgs e)
         {
             if (sender is Button button)
@@ -135,8 +139,10 @@ namespace WumpusWorld
             }
         }
 
+        // Click do botão que movimenta o jogador
         private void Button_Go_Click(object sender, EventArgs e)
         {
+            // Observe que o movimento é feito somente se possível de ser realizado
             switch (player.Direction)
             {
                 case "up":
@@ -170,6 +176,7 @@ namespace WumpusWorld
             }
         }
 
+        // Click do botão para pegar o ouro
         private void Button_Get_Click(object sender, EventArgs e)
         {
             if (player.Position == _board.Gold && !player.HaveGold)
@@ -180,6 +187,7 @@ namespace WumpusWorld
             }
         }
 
+        // Click do botão de atirar flecha
         private void Button_Arrow_Click(object sender, EventArgs e)
         {
             if (player.HaveArrow)
@@ -190,56 +198,7 @@ namespace WumpusWorld
             }
         }
 
-
-        private void MovePlayer()
-        {
-            UpdateScore(-1);
-
-            _handlerBoard.MovePlayer(player, _board);
-
-            if (!WorstHappened())
-            {
-                _wumpusPd.CheckSafety(player.Position, _board.WumpusIsDead);
-                _pitPd.CheckSafety(player.Position, false);
-
-                UpdateProbDist();
-            }
-        }
-
-        private bool WorstHappened()
-        {
-            ;
-            if (player.Position == _board.Wumpus && !_board.WumpusIsDead)
-            {
-                UpdateScore(-1000);
-                MessageBox.Show("you were devoured by the Wumpus!");
-                _handlerBoard.DisableAll();
-                return true;
-            }
-            if (_board.Pits.Where(p => p == player.Position).Any())
-            {
-                UpdateScore(-1000);
-                MessageBox.Show("you fell into the pit and died!");
-                _handlerBoard.DisableAll();
-                return true;
-            }
-            return false;
-        }
-
-        private void KillWumpus()
-        {
-            _board.WumpusIsDead = true;
-            player.HeardScream = true;
-            label_scream.Visible = true;
-            _handlerBoard.UpdateDeadWumpus();
-        }
-
-        private void UpdateScore(int value)
-        {
-            _board.PlayerScore += value;
-            label_score.Text = _board.PlayerScore.ToString();
-        }
-
+        // Tratamento de teclas na interface
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch (keyData)
@@ -268,6 +227,60 @@ namespace WumpusWorld
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        // Move o jogador
+        private void MovePlayer()
+        {
+            UpdateScore(-1);
+
+            _handlerBoard.MovePlayer(player, _board);
+
+            if (!WorstHappened())
+            {
+                _wumpusPd.CheckSafety(player.Position, _board.WumpusIsDead);
+                _pitPd.CheckSafety(player.Position, false);
+
+                UpdateProbDist();
+            }
+        }
+
+        // Verifica se o pior aconteceu
+        private bool WorstHappened()
+        {
+            ;
+            if (player.Position == _board.Wumpus && !_board.WumpusIsDead)
+            {
+                UpdateScore(-1000);
+                MessageBox.Show("you were devoured by the Wumpus!");
+                _handlerBoard.DisableAll();
+                return true;
+            }
+            if (_board.Pits.Where(p => p == player.Position).Any())
+            {
+                UpdateScore(-1000);
+                MessageBox.Show("you fell into the pit and died!");
+                _handlerBoard.DisableAll();
+                return true;
+            }
+            return false;
+        }
+
+        // Ação de matar o Wumpus
+        private void KillWumpus()
+        {
+            _board.WumpusIsDead = true;
+            player.HeardScream = true;
+            label_scream.Visible = true;
+            _handlerBoard.UpdateDeadWumpus();
+        }
+
+        // Atualiza pontuação do jogador
+        private void UpdateScore(int value)
+        {
+            player.Score += value;
+            label_score.Text = player.Score.ToString();
+        }
+
 
         private void Button_Auto_MouseClick(object sender, MouseEventArgs e)
         {

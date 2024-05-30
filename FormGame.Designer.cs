@@ -76,11 +76,11 @@
             button11 = new Button();
             button12 = new Button();
             tableLayoutPanel2 = new TableLayoutPanel();
-            button_auto = new Button();
             button_new_game = new Button();
             button_show = new Button();
             label_score = new Label();
             label0 = new Label();
+            button_auto = new Button();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -818,22 +818,6 @@
             tableLayoutPanel2.Size = new Size(681, 41);
             tableLayoutPanel2.TabIndex = 2;
             // 
-            // button_auto
-            // 
-            button_auto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_auto.BackColor = Color.FromArgb(64, 64, 64);
-            button_auto.FlatAppearance.BorderSize = 0;
-            button_auto.FlatStyle = FlatStyle.Flat;
-            button_auto.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_auto.ForeColor = Color.White;
-            button_auto.Location = new Point(275, 3);
-            button_auto.Name = "button_auto";
-            button_auto.Size = new Size(130, 35);
-            button_auto.TabIndex = 8;
-            button_auto.Text = "auto";
-            button_auto.UseVisualStyleBackColor = false;
-            button_auto.MouseClick += Button_Auto_MouseClick;
-            // 
             // button_new_game
             // 
             button_new_game.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -884,11 +868,27 @@
             label0.AutoSize = true;
             label0.Font = new Font("Segoe UI", 10F);
             label0.ForeColor = Color.White;
-            label0.Location = new Point(500, 11);
+            label0.Location = new Point(497, 11);
             label0.Name = "label0";
-            label0.Size = new Size(41, 19);
+            label0.Size = new Size(44, 19);
             label0.TabIndex = 6;
-            label0.Text = "score";
+            label0.Text = "score:";
+            // 
+            // button_auto
+            // 
+            button_auto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_auto.BackColor = Color.FromArgb(64, 64, 64);
+            button_auto.FlatAppearance.BorderSize = 0;
+            button_auto.FlatStyle = FlatStyle.Flat;
+            button_auto.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_auto.ForeColor = Color.White;
+            button_auto.Location = new Point(275, 3);
+            button_auto.Name = "button_auto";
+            button_auto.Size = new Size(130, 35);
+            button_auto.TabIndex = 8;
+            button_auto.Text = "auto";
+            button_auto.UseVisualStyleBackColor = false;
+            button_auto.MouseClick += Button_Auto_MouseClick;
             // 
             // FormGame
             // 

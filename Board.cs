@@ -9,7 +9,6 @@
 
         // Indicares do jogo
         public bool WumpusIsDead = false;
-        public int PlayerScore = 0;
 
         public void NewGame(int dimX, int dimY)
         {
@@ -34,7 +33,6 @@
             Pits[1] = positions[2];
             Pits[2] = positions[3];
             Wumpus = positions[4];
-            PlayerScore = 0;
             WumpusIsDead = false;
         }
 

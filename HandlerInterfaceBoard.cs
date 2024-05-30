@@ -1,10 +1,8 @@
-﻿using System.Numerics;
-
-namespace WumpusWorld
+﻿namespace WumpusWorld
 {
     internal class HandlerInterfaceBoard
     {
-        private readonly Button[,] _buttons; // Matriz de botões que compõe o tabuleiro
+        private readonly Button[,] _buttonsBoard; // Matriz de botões que compõe o tabuleiro
 
         private readonly Dictionary<string, Image> _images;
 
@@ -14,15 +12,15 @@ namespace WumpusWorld
         private readonly Color _pitColor = Color.FromArgb(0, 0, 0);
         private readonly Color _goldColor = Color.FromArgb(64, 64, 16);
 
-        public int DimX { get => _buttons.GetLength(0); }
-        public int DimY { get => _buttons.GetLength(1); }
+        public int DimX { get => _buttonsBoard.GetLength(0); }
+        public int DimY { get => _buttonsBoard.GetLength(1); }
 
         // Posição atual do jogador
         public Button ScopeButton = new();
 
         public HandlerInterfaceBoard(Button[,] buttons)
         {
-            _buttons = buttons;
+            _buttonsBoard = buttons;
             string[] pathImgs = Directory.GetFiles("img");
             _images = new Dictionary<string, Image>(6);
             foreach (string path in pathImgs)
@@ -34,12 +32,12 @@ namespace WumpusWorld
 
         public void DisableAll()
         {
-            foreach (var b in _buttons) b.Enabled = false;
+            foreach (var b in _buttonsBoard) b.Enabled = false;
         }
 
         public void StartBoard(int xInit=0, int yInit=0)
         {
-            foreach (Button button in _buttons)
+            foreach (Button button in _buttonsBoard)
             {
                 button.Text = "";
                 button.ForeColor = _closedColor;
@@ -51,7 +49,7 @@ namespace WumpusWorld
                 button.FlatAppearance.MouseDownBackColor = _closedColor;
                 button.Enabled = true;
             }
-            ScopeButton = _buttons[xInit, yInit];
+            ScopeButton = _buttonsBoard[xInit, yInit];
             ScopeButton.Image = _images["player_down"];
             ScopeButton.BackColor = _openedColor;
             ScopeButton.FlatAppearance.MouseOverBackColor = _openedColor;
@@ -60,32 +58,32 @@ namespace WumpusWorld
 
         public void MovePlayer(Player player, Board board)
         {
-            _buttons[player.Position.X, player.Position.Y].Image = ScopeButton.Image;
+            _buttonsBoard[player.Position.X, player.Position.Y].Image = ScopeButton.Image;
             ScopeButton.Image = null;
-            ScopeButton = _buttons[player.Position.X, player.Position.Y];
+            ScopeButton = _buttonsBoard[player.Position.X, player.Position.Y];
             PaintButton(player.Position, board, player);
             BackgroundImageButton(player.Position, board, player);
         }
 
         public void PaintButton(Point point, Board board, Player player)
         {
-            _buttons[point.X,point.Y].BackColor = _openedColor;
-            _buttons[point.X, point.Y].FlatAppearance.MouseOverBackColor = _openedColor;
-            _buttons[point.X, point.Y].ForeColor = Color.White;
+            _buttonsBoard[point.X,point.Y].BackColor = _openedColor;
+            _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _openedColor;
+            _buttonsBoard[point.X, point.Y].ForeColor = Color.White;
             if (point == board.Wumpus)
             {
-                _buttons[point.X, point.Y].BackColor = _openedColor;
-                _buttons[point.X, point.Y].FlatAppearance.MouseOverBackColor = _openedColor;
+                _buttonsBoard[point.X, point.Y].BackColor = _openedColor;
+                _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _openedColor;
             }
             if (board.Pits.Where(p => p == point).Any())
             {
-                _buttons[point.X, point.Y].BackColor = _pitColor;
-                _buttons[point.X, point.Y].FlatAppearance.MouseOverBackColor = _pitColor;
+                _buttonsBoard[point.X, point.Y].BackColor = _pitColor;
+                _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _pitColor;
             }
             if (point == board.Gold && !player.HaveGold)
             {
-                _buttons[point.X, point.Y].BackColor = _goldColor;
-                _buttons[point.X, point.Y].FlatAppearance.MouseOverBackColor = _goldColor;
+                _buttonsBoard[point.X, point.Y].BackColor = _goldColor;
+                _buttonsBoard[point.X, point.Y].FlatAppearance.MouseOverBackColor = _goldColor;
             }
         }
 
@@ -93,11 +91,11 @@ namespace WumpusWorld
         {
             if (point == board.Wumpus)
             {
-                _buttons[point.X, point.Y].BackgroundImage = board.WumpusIsDead ? _images["dead_wumpus"] : _images["wumpus"];
+                _buttonsBoard[point.X, point.Y].BackgroundImage = board.WumpusIsDead ? _images["dead_wumpus"] : _images["wumpus"];
             }
             if (point == board.Gold && !player.HaveGold)
             {
-                _buttons[point.X, point.Y].BackgroundImage = _images["gold"];
+                _buttonsBoard[point.X, point.Y].BackgroundImage = _images["gold"];
             }
         }
 
@@ -115,7 +113,7 @@ namespace WumpusWorld
 
         public void UpdateDeadWumpus()
         {
-            foreach (var b in _buttons)
+            foreach (var b in _buttonsBoard)
             {
                 if (b.BackgroundImage != null)
                 {
@@ -130,24 +128,24 @@ namespace WumpusWorld
 
         private void TagStench(int i, int j)
         {
-            if (!_buttons[i, j].Text.Contains("Stench"))
+            if (!_buttonsBoard[i, j].Text.Contains("Stench"))
             {
-                _buttons[i, j].Text += "Stench\n";
+                _buttonsBoard[i, j].Text += "Stench\n";
             }
         }
 
         private void TagBreeze(int i, int j)
         {
-            if (!_buttons[i, j].Text.Contains("Breeze"))
+            if (!_buttonsBoard[i, j].Text.Contains("Breeze"))
             {
-                _buttons[i, j].Text += "Breeze\n";
+                _buttonsBoard[i, j].Text += "Breeze\n";
             }
         }
 
         public void Tagging(Board board)
         {
-            int maxX = _buttons.GetLength(0) - 1;
-            int maxY = _buttons.GetLength(1) - 1;
+            int maxX = _buttonsBoard.GetLength(0) - 1;
+            int maxY = _buttonsBoard.GetLength(1) - 1;
             for (int i = 0; i <= maxX; i++)
             {
                 for (int j = 0; j <= maxY; j++)
