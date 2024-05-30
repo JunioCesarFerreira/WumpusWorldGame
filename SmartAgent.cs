@@ -9,7 +9,9 @@
         private readonly HazardProbabilityDistribution _wumpusPd;
         private readonly HazardProbabilityDistribution _pitPd;
 
-        private readonly Stack<Point> path = new();
+        private Stack<Point> path = new();
+
+        private readonly bool[,] _visited;
 
 
         public SmartAgent(Player player, Board board, HandlerInterfaceBoard handler, HazardProbabilityDistribution w, HazardProbabilityDistribution p) 
@@ -19,12 +21,16 @@
             _handler = handler;
             _wumpusPd = w;
             _pitPd = p;
+            _visited = new bool[handler.DimX, handler.DimY];
         }
 
         public void Step()
         {
+            _visited[_player.Position.X, _player.Position.Y] = true;
             if (_player.Position == _board.Gold && !_player.HaveGold)
             {
+                path = PathFinder.FindShortestPath(_visited, _player.Position, new Point(0, 0));
+                path.Pop(); // Remove o topo pois é posição atual
                 SendKeys.Send(" ");
             }
             else if (_player.HaveGold)
@@ -36,8 +42,8 @@
                 }
                 else
                 {
-                    SendKeys.Send("{Down}");
                     MessageBox.Show("Finished!");
+                    SendKeys.Send("{Down}");
                 }
             }
             else
@@ -45,7 +51,6 @@
                 Point? point = SeeksBetterAdj();
                 if (point.HasValue)
                 {
-                    path.Push(_player.Position);
                     Redirect(_player.Position, point.Value);
                     SendKeys.Send("{Enter}");
                 }
@@ -95,7 +100,7 @@
             foreach (Point pt in adj)
             {
                 float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
-                bool v = _wumpusPd.IsViseted(pt.X, pt.Y);
+                bool v = _visited[pt.X, pt.Y];
                 if (sum == 0 && !v)
                 {
                     dest = pt;
