@@ -5,6 +5,20 @@
         private static readonly int[] rowOffsets = { -1, 1, 0, 0 };
         private static readonly int[] colOffsets = { 0, 0, -1, 1 };
 
+        private class Node
+        {
+            public int X { get; }
+            public int Y { get; }
+            public Node Parent { get; }
+
+            public Node(int x, int y, Node parent)
+            {
+                X = x;
+                Y = y;
+                Parent = parent;
+            }
+        }
+
         public static Stack<Point> FindShortestPath(bool[,] visited, Point start, Point end)
         {
             int rows = visited.GetLength(0);
@@ -12,7 +26,8 @@
 
             if (!IsValid(start.X, start.Y, visited) || !IsValid(end.X, end.Y, visited))
             {
-                return []; // No valid path if start or end points are invalid
+                // Nenhum caminho válido se os pontos inicial ou final forem inválidos
+                return [];
             }
 
             bool[,] visitedNodes = new bool[rows, cols];
@@ -42,12 +57,16 @@
                 }
             }
 
-            return []; // No path found
+            return []; 
         }
 
         private static bool IsValid(int row, int col, bool[,] visited)
         {
-            return row >= 0 && row < visited.GetLength(0) && col >= 0 && col < visited.GetLength(1) && visited[row, col];
+            return row >= 0 
+                && row < visited.GetLength(0) 
+                && col >= 0 
+                && col < visited.GetLength(1) 
+                && visited[row, col];
         }
 
         private static Stack<Point> ConstructPath(Node endNode)
@@ -62,20 +81,6 @@
             }
 
             return path;
-        }
-
-        private class Node
-        {
-            public int X { get; }
-            public int Y { get; }
-            public Node Parent { get; }
-
-            public Node(int x, int y, Node parent)
-            {
-                X = x;
-                Y = y;
-                Parent = parent;
-            }
         }
     }
 }

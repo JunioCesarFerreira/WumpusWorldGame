@@ -26,14 +26,17 @@
 
         public void Step()
         {
+            // Marca como visitado
             _visited[_player.Position.X, _player.Position.Y] = true;
+
+            // Se está na posição do tesouro e ainda não o pegou
             if (_player.Position == _board.Gold && !_player.HaveGold)
             {
                 path = PathFinder.FindShortestPath(_visited, _player.Position, new Point(0, 0));
                 path.Pop(); // Remove o topo pois é posição atual
                 SendKeys.Send(" ");
             }
-            else if (_player.HaveGold)
+            else if (_player.HaveGold) // Se já pegou o tesouro
             {
                 if (path.Count > 0)
                 {
@@ -46,9 +49,9 @@
                     SendKeys.Send("{Down}");
                 }
             }
-            else
+            else // Procura adjacência segura para explorar
             {
-                Point? point = SeeksBetterAdj();
+                Point? point = SearchesForUnexploredSafeCells();
                 if (point.HasValue)
                 {
                     Redirect(_player.Position, point.Value);
@@ -83,7 +86,25 @@
             _pitPd.CalculateProbabilities();
         }
 
-        private Point? SeeksBetterAdj()
+        private Point? SearchesWumpus()
+        {
+            if (!_board.WumpusIsDead && _player.HaveArrow)
+            {
+                for (int i = 0; i < _handler.DimX; i++)
+                {
+                    for (int j = 0; j < _handler.DimY; j++)
+                    {
+                        if (_wumpusPd.ProbDist[i, j]==1)
+                        {
+                            return new Point(i, j);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Point? SearchesForUnexploredSafeCells()
         {
             var adj = new List<Point>();
             Point p = _player.Position;
@@ -105,6 +126,36 @@
                 {
                     dest = pt;
                     break;
+                }
+            }
+            if (dest is null)
+            {
+                var list = new List<Point>();
+                for (int i=0; i < _handler.DimX; i++)
+                {
+                    for (int j=0; j< _handler.DimY; j++)
+                    {
+                        float sum = _wumpusPd.ProbDist[i, j] + _pitPd.ProbDist[i, j];
+                        if (sum == 0 && !_visited[i,j])
+                        {
+                            list.Add(new Point(i, j));
+                        }
+                    }
+                }
+                if (list.Count > 0)
+                {
+                    foreach (Point pt in list)
+                    {
+                        _visited[pt.X, pt.Y] = true;
+                        var tmp = PathFinder.FindShortestPath(_visited, _player.Position, pt);
+                        _visited[pt.X, pt.Y] = false;
+                        if (tmp.Count >= 2)
+                        {
+                            tmp.Pop();
+                            dest = tmp.Pop();
+                            break;
+                        }
+                    }
                 }
             }
             if (dest is null)
