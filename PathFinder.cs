@@ -2,8 +2,8 @@
 {
     internal class PathFinder
     {
-        private static readonly int[] rowOffsets = { -1, 1, 0, 0 };
-        private static readonly int[] colOffsets = { 0, 0, -1, 1 };
+        private static readonly int[] rowOffsets = [-1, 1, 0, 0];
+        private static readonly int[] colOffsets = [0, 0, -1, 1];
 
         private class Node
         {

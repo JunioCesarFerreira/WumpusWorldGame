@@ -23,6 +23,31 @@
             return _buttonsBoard; 
         }
 
+        private struct VisualConfig
+        {
+            public Color BackColor;
+            public Color ForeColor;
+            public Color MouseOverBackColor;
+            public Image? BackgroundImage;
+
+            public void GetFrom(Button button)
+            {
+                this.BackColor = button.BackColor;
+                this.ForeColor = button.ForeColor;
+                this.MouseOverBackColor = button.FlatAppearance.MouseOverBackColor;
+                this.BackgroundImage = button.BackgroundImage;
+            }
+
+            public void SetTo(Button button)
+            {
+                button.BackColor = this.BackColor;
+                button.ForeColor = this.ForeColor;
+                button.FlatAppearance.MouseOverBackColor = this.MouseOverBackColor;
+                button.BackgroundImage = this.BackgroundImage;
+            }
+        }
+        private readonly VisualConfig[,] _bkpVisualConfigs;
+
         public HandlerInterfaceBoard(Button[,] buttons)
         {
             _buttonsBoard = buttons;
@@ -33,6 +58,7 @@
                 string name = Path.GetFileNameWithoutExtension(path);
                 _images[name] = Image.FromFile(path);
             }
+            _bkpVisualConfigs = new VisualConfig[DimX, DimY];
         }
 
         public void DisableAll()
@@ -68,6 +94,28 @@
             ScopeButton = _buttonsBoard[player.Position.X, player.Position.Y];
             PaintButton(player.Position, board, player);
             BackgroundImageButton(player.Position, board, player);
+        }
+
+        public void SaveVisual()
+        {
+            for (int i=0; i<DimX; i++)
+            {
+                for (int j=0; j<DimY; j++)
+                {
+                    _bkpVisualConfigs[i,j].GetFrom(_buttonsBoard[i,j]);
+                }
+            }
+        }
+
+        public void RestoresVisual()
+        {
+            for (int i = 0; i < DimX; i++)
+            {
+                for (int j = 0; j < DimY; j++)
+                {
+                    _bkpVisualConfigs[i, j].SetTo(_buttonsBoard[i, j]);
+                }
+            }
         }
 
         public void PaintButton(Point point, Board board, Player player)

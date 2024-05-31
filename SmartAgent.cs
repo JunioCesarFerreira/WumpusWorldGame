@@ -21,6 +21,16 @@
         private HuntingWumpus huntingWumpus = HuntingWumpus.None;
         private Point? wumpusPosition = null;
 
+        public SmartAgent() 
+        {
+            // Construtor vazio apenas para Visual Studio parar de emitir warnnigs
+            _player = new Player();
+            _board = new Board();
+            _handler = new HandlerInterfaceBoard(new Button[1,1]);
+            _wumpusPd = new HazardProbabilityDistribution(new Button[1, 1], "",0);
+            _pitPd = new HazardProbabilityDistribution(new Button[1, 1], "", 0); ;
+            _visited = new bool[0,0];
+        }
 
         public SmartAgent(Player player, Board board, HandlerInterfaceBoard handler, HazardProbabilityDistribution w, HazardProbabilityDistribution p) 
         { 
@@ -32,8 +42,15 @@
             _visited = new bool[handler.DimX, handler.DimY];
         }
 
-        public void Step()
+        /// <summary>
+        /// Realiza um passo utilizando lógica do agente inteligênte
+        /// </summary>
+        /// <param name="message">Mensagens de retorno ao finalizar</param>
+        /// <returns>true se ainda tem passos. false se o processo terminou, idependente do sucesso.</returns>
+        public bool Step(out string message)
         {
+            bool resultStep = true;
+            message = "";
             // Marca como visitado
             _visited[_player.Position.X, _player.Position.Y] = true;
 
@@ -57,7 +74,8 @@
                 }
                 else
                 {
-                    MessageBox.Show("Completed successfully!");
+                    resultStep = false;
+                    message = "Completed successfully!";
                     SendKeys.Send("{Down}");
                 }
             }
@@ -73,14 +91,17 @@
                 {
                     if (!HuntingWumpusStateMachine())
                     {
-                        MessageBox.Show("There are no more moves without the risk of death.");
+                        resultStep = false;
+                        message = "There are no more moves without the risk of death.";
                     }
                 }
                 else
                 {
-                    MessageBox.Show("There are no more moves without the risk of death.");
+                    resultStep = false;
+                    message = "There are no more moves without the risk of death.";
                 }
             }
+            return resultStep;
         }
 
         private bool HuntingWumpusStateMachine()
@@ -168,7 +189,7 @@
             {
                 for (int i = 0; i < _handler.DimX; i++)
                     for (int j = 0; j < _handler.DimY; j++)
-                        if (_wumpusPd.ProbDist[i, j]==1 && _pitPd.ProbDist[i,j]==0)
+                        if (_wumpusPd.ProbDist[i, j]==1)
                             return new Point(i, j);
             }
             return null;
@@ -194,7 +215,7 @@
             {
                 float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
                 bool v = _visited[pt.X, pt.Y];
-                if (sum == 0 && !v)
+                if ((sum == 0 || (pt==wumpusPosition && _board.WumpusIsDead)) && !v)
                 {
                     dest = pt;
                     break;

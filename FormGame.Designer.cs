@@ -76,11 +76,13 @@
             button11 = new Button();
             button12 = new Button();
             tableLayoutPanel2 = new TableLayoutPanel();
+            button_my_games = new Button();
             button_new_game = new Button();
-            button_show = new Button();
             label_score = new Label();
             label0 = new Label();
             button_step = new Button();
+            button_agentOnOff = new Button();
+            button_show = new Button();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -800,23 +802,43 @@
             // tableLayoutPanel2
             // 
             tableLayoutPanel2.Anchor = AnchorStyles.Top;
-            tableLayoutPanel2.ColumnCount = 5;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.ColumnCount = 7;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.2857141F));
+            tableLayoutPanel2.Controls.Add(button_my_games, 1, 0);
             tableLayoutPanel2.Controls.Add(button_new_game, 0, 0);
-            tableLayoutPanel2.Controls.Add(button_show, 1, 0);
-            tableLayoutPanel2.Controls.Add(label_score, 4, 0);
-            tableLayoutPanel2.Controls.Add(label0, 3, 0);
-            tableLayoutPanel2.Controls.Add(button_step, 2, 0);
-            tableLayoutPanel2.Location = new Point(15, 3);
+            tableLayoutPanel2.Controls.Add(label_score, 6, 0);
+            tableLayoutPanel2.Controls.Add(label0, 5, 0);
+            tableLayoutPanel2.Controls.Add(button_step, 4, 0);
+            tableLayoutPanel2.Controls.Add(button_agentOnOff, 3, 0);
+            tableLayoutPanel2.Controls.Add(button_show, 2, 0);
+            tableLayoutPanel2.Location = new Point(7, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Size = new Size(681, 41);
+            tableLayoutPanel2.Size = new Size(696, 41);
             tableLayoutPanel2.TabIndex = 2;
+            // 
+            // button_my_games
+            // 
+            button_my_games.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_my_games.BackColor = Color.FromArgb(64, 64, 64);
+            button_my_games.FlatAppearance.BorderSize = 0;
+            button_my_games.FlatStyle = FlatStyle.Flat;
+            button_my_games.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_my_games.ForeColor = Color.White;
+            button_my_games.Location = new Point(102, 3);
+            button_my_games.Name = "button_my_games";
+            button_my_games.Size = new Size(93, 35);
+            button_my_games.TabIndex = 6;
+            button_my_games.Text = "my games";
+            button_my_games.UseVisualStyleBackColor = false;
+            button_my_games.MouseClick += Button_My_Games_MouseClick;
             // 
             // button_new_game
             // 
@@ -828,27 +850,11 @@
             button_new_game.ForeColor = Color.White;
             button_new_game.Location = new Point(3, 3);
             button_new_game.Name = "button_new_game";
-            button_new_game.Size = new Size(130, 35);
+            button_new_game.Size = new Size(93, 35);
             button_new_game.TabIndex = 5;
             button_new_game.Text = "new game";
             button_new_game.UseVisualStyleBackColor = false;
             button_new_game.MouseClick += Button_New_Game_MouseClick;
-            // 
-            // button_show
-            // 
-            button_show.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_show.BackColor = Color.FromArgb(64, 64, 64);
-            button_show.FlatAppearance.BorderSize = 0;
-            button_show.FlatStyle = FlatStyle.Flat;
-            button_show.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_show.ForeColor = Color.White;
-            button_show.Location = new Point(139, 3);
-            button_show.Name = "button_show";
-            button_show.Size = new Size(130, 35);
-            button_show.TabIndex = 1;
-            button_show.Text = "show";
-            button_show.UseVisualStyleBackColor = false;
-            button_show.MouseClick += Button_Show_MouseClick;
             // 
             // label_score
             // 
@@ -856,7 +862,7 @@
             label_score.AutoSize = true;
             label_score.Font = new Font("Segoe UI", 10F);
             label_score.ForeColor = Color.White;
-            label_score.Location = new Point(547, 11);
+            label_score.Location = new Point(597, 11);
             label_score.Name = "label_score";
             label_score.Size = new Size(17, 19);
             label_score.TabIndex = 7;
@@ -868,7 +874,7 @@
             label0.AutoSize = true;
             label0.Font = new Font("Segoe UI", 10F);
             label0.ForeColor = Color.White;
-            label0.Location = new Point(497, 11);
+            label0.Location = new Point(547, 11);
             label0.Name = "label0";
             label0.Size = new Size(44, 19);
             label0.TabIndex = 6;
@@ -882,13 +888,45 @@
             button_step.FlatStyle = FlatStyle.Flat;
             button_step.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             button_step.ForeColor = Color.White;
-            button_step.Location = new Point(275, 3);
+            button_step.Location = new Point(399, 3);
             button_step.Name = "button_step";
-            button_step.Size = new Size(130, 35);
+            button_step.Size = new Size(93, 35);
             button_step.TabIndex = 8;
             button_step.Text = "step";
             button_step.UseVisualStyleBackColor = false;
             button_step.MouseClick += Button_Step_MouseClick;
+            // 
+            // button_agentOnOff
+            // 
+            button_agentOnOff.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_agentOnOff.BackColor = Color.FromArgb(64, 64, 64);
+            button_agentOnOff.FlatAppearance.BorderSize = 0;
+            button_agentOnOff.FlatStyle = FlatStyle.Flat;
+            button_agentOnOff.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_agentOnOff.ForeColor = Color.White;
+            button_agentOnOff.Location = new Point(300, 3);
+            button_agentOnOff.Name = "button_agentOnOff";
+            button_agentOnOff.Size = new Size(93, 35);
+            button_agentOnOff.TabIndex = 9;
+            button_agentOnOff.Text = "play";
+            button_agentOnOff.UseVisualStyleBackColor = false;
+            button_agentOnOff.MouseClick += Button_AgentOnOff_MouseClick;
+            // 
+            // button_show
+            // 
+            button_show.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_show.BackColor = Color.FromArgb(64, 64, 64);
+            button_show.FlatAppearance.BorderSize = 0;
+            button_show.FlatStyle = FlatStyle.Flat;
+            button_show.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_show.ForeColor = Color.White;
+            button_show.Location = new Point(201, 3);
+            button_show.Name = "button_show";
+            button_show.Size = new Size(93, 35);
+            button_show.TabIndex = 1;
+            button_show.Text = "show";
+            button_show.UseVisualStyleBackColor = false;
+            button_show.MouseClick += Button_Show_MouseClick;
             // 
             // FormGame
             // 
@@ -966,5 +1004,7 @@
         private Label label11;
         private Label label16;
         private Button button_step;
+        private Button button_agentOnOff;
+        private Button button_my_games;
     }
 }

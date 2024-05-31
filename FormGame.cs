@@ -8,7 +8,7 @@ namespace WumpusWorld
         private readonly HandlerInterfaceBoard _handlerBoard;
 
         // Matriz de labels de probabilidades
-        private readonly Label[,] _probabilityLabels;   
+        private readonly Label[,] _probabilityLabels;
 
         // Distribuições de probabilidades
         private readonly HazardProbabilityDistribution _wumpusPd;
@@ -19,7 +19,9 @@ namespace WumpusWorld
 
         // Jogador
         private Player player = new();
-        private SmartAgent agent;
+        private SmartAgent agent = new();
+
+        private System.Windows.Forms.Timer timer = new();
 
         // Construtor do Form
         public FormGame()
@@ -56,6 +58,7 @@ namespace WumpusWorld
             _pitPd = new HazardProbabilityDistribution(boardButtons, "breeze", 3);
 
             _board = new Board();
+
             StartBoard();
         }
 
@@ -71,8 +74,9 @@ namespace WumpusWorld
             button_arrow.Enabled = true;
 
             _handlerBoard.Tagging(_board);
-            
+
             label_scream.Visible = false;
+            button_show.Text = "show";
 
             _wumpusPd.Initialize(player.Position);
             _pitPd.Initialize(player.Position);
@@ -118,17 +122,34 @@ namespace WumpusWorld
             StartBoard();
         }
 
+        private void Button_My_Games_MouseClick(object sender, MouseEventArgs e)
+        {
+            _board.NewFavoriteGame();
+            StartBoard();
+            Button_Show_MouseClick(button_show, e);
+        }
+
         // Click do botão Mostrar
         private void Button_Show_MouseClick(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < _handlerBoard.DimX; i++)
+            if (button_show.Text == "show")
             {
-                for (int j = 0; j < _handlerBoard.DimY; j++)
+                button_show.Text = "hide";
+                _handlerBoard.SaveVisual();
+                for (int i = 0; i < _handlerBoard.DimX; i++)
                 {
-                    Point p = new(i, j);
-                    _handlerBoard.PaintButton(p, _board, player);
-                    _handlerBoard.BackgroundImageButton(p, _board, player);
+                    for (int j = 0; j < _handlerBoard.DimY; j++)
+                    {
+                        Point p = new(i, j);
+                        _handlerBoard.PaintButton(p, _board, player);
+                        _handlerBoard.BackgroundImageButton(p, _board, player);
+                    }
                 }
+            }
+            else
+            {
+                button_show.Text = "show";
+                _handlerBoard.RestoresVisual();
             }
         }
 
@@ -286,7 +307,49 @@ namespace WumpusWorld
 
         private void Button_Step_MouseClick(object sender, MouseEventArgs e)
         {
-            agent.Step();
+            if (!agent.Step(out string msg))
+            {
+                MessageBox.Show(msg);
+            }
+        }
+
+        private void Button_AgentOnOff_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (button_agentOnOff.Text == "play")
+            {
+                button_agentOnOff.Text = "stop";
+                UpdateControlButtonsEnable(false);
+                timer = new System.Windows.Forms.Timer()
+                {
+                    Interval = 500
+                };
+                timer.Tick += Timer_Tick;
+                timer.Start();
+            }
+            else
+            {
+                button_agentOnOff.Text = "play";
+                UpdateControlButtonsEnable(true);
+                timer.Stop();
+            }
+        }
+
+        private void UpdateControlButtonsEnable(bool value)
+        {
+            button_new_game.Enabled = value;
+            button_show.Enabled = value;
+            button_step.Enabled = value;
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            if (!agent.Step(out string msg))
+            {
+                timer.Stop();
+                button_agentOnOff.Text = "play";
+                UpdateControlButtonsEnable(true);
+                MessageBox.Show(msg);
+            }
         }
     }
 }

@@ -3,17 +3,45 @@
     internal class Board
     {
         // Pontos de localização dos elementos do jogo
-        //private readonly Point[] pits = [new(0, 3), new(0, 2), new(3, 0)];
-        //private Point wumpus = new(3, 2);//new(1, 2);
-        //private Point gold = new(1, 3);
+        private readonly Point[] pits = [new(2, 3), new(2, 1), new(2, 0)];
+        private Point wumpus = new(3, 3);
+        private Point gold = new(3, 1);
 
-        //private readonly Point[] pits = [new(0, 3), new(1, 2), new(3, 2)];
-        //private Point wumpus = new(2, 2);
-        //private Point gold = new(3, 3);
-
-        private readonly Point[] pits = [new(0, 3), new(2, 0), new(3, 2)];
-        private Point wumpus = new(1, 2);
-        private Point gold = new(3, 3);
+        private struct GameInitialization
+        {
+            public Point[] Pits;
+            public Point Wumpus;
+            public Point Gold;
+        }
+        private readonly GameInitialization[] myFavorites =
+        {
+            new () {
+                Pits = [new(0, 3), new(0, 2), new(3, 0)],
+                Wumpus = new(3, 2),
+                Gold = new(1, 3)
+            },
+            new() {
+                Pits = [new(0, 3), new(1, 2), new(3, 2)],
+                Wumpus =  new(2, 2),
+                Gold = new(3, 3)
+            },
+            new () {
+                Pits = [new(0, 3), new(2, 0), new(3, 2)],
+                Wumpus = new(1, 2),
+                Gold = new(3, 3)
+            },
+            new () {
+                Pits = [new(1, 3), new(2, 3), new(2, 0)],
+                Wumpus = new(3, 1),
+                Gold = new(2, 2)
+            },
+            new () {
+                Pits =  [new(2, 3), new(2, 1), new(2, 0)],
+                Wumpus = new(3, 3),
+                Gold = new(3, 1)
+            },
+        };
+        private int myFavoritesIndex = 0;
 
 
         public Point Wumpus { get => wumpus; }
@@ -51,6 +79,20 @@
             pits[1] = positions[2];
             pits[2] = positions[3];
             wumpus = positions[4];
+            WumpusIsDead = false;
+        }
+
+        public void NewFavoriteGame()
+        {
+            myFavoritesIndex++;
+            if (myFavoritesIndex >= myFavorites.Length)
+                myFavoritesIndex = 0;
+
+            gold = myFavorites[myFavoritesIndex].Gold;
+            pits[0] = myFavorites[myFavoritesIndex].Pits[0];
+            pits[1] = myFavorites[myFavoritesIndex].Pits[1];
+            pits[2] = myFavorites[myFavoritesIndex].Pits[2];
+            wumpus = myFavorites[myFavoritesIndex].Wumpus;
             WumpusIsDead = false;
         }
 
