@@ -9,17 +9,20 @@
         private readonly HazardProbabilityDistribution _wumpusPd;
         private readonly HazardProbabilityDistribution _pitPd;
 
+        private readonly bool[,] _visited;
+
         private Stack<Point> path = new();
 
-        private readonly bool[,] _visited;
-        private enum HuntingWumpus {
+        private enum WumpusHuntState {
             None,
             Hunting,
             Shooting,
             Finished
         };
-        private HuntingWumpus huntingWumpus = HuntingWumpus.None;
+        private WumpusHuntState huntingWumpus = WumpusHuntState.None;
         private Point? wumpusPosition = null;
+        private List<Point> possibleWumpusPositions = [];
+        private int targetIndex = 0;
 
         public SmartAgent() 
         {
@@ -42,6 +45,24 @@
             _visited = new bool[handler.DimX, handler.DimY];
         }
 
+        private static void Redirect(Point current, Point target)
+        {
+            if (current.Y == target.Y)
+            {
+                if (current.X > target.X)
+                    SendKeys.Send("{Left}");
+                else
+                    SendKeys.Send("{Right}");
+            }
+            if (current.X == target.X)
+            {
+                if (target.Y > current.Y)
+                    SendKeys.Send("{Up}");
+                else
+                    SendKeys.Send("{Down}");
+            }
+        }
+
         /// <summary>
         /// Realiza um passo utilizando lógica do agente inteligênte
         /// </summary>
@@ -60,85 +81,202 @@
             // Se está na posição do tesouro e ainda não o pegou
             if (_player.Position == _board.Gold && !_player.HaveGold)
             {
-                SendKeys.Send(" "); // Pega o tesouro
-                // Prepara caminho de retorno para saída
-                path = PathFinder.FindShortestPath(_visited, _player.Position, new Point(0, 0));
-                path.Pop(); // Remove o topo pois é posição atual
+                CollectGold();
             }
             else if (_player.HaveGold) // Se já pegou o tesouro
             {
-                if (path.Count > 0)
-                {
-                    Redirect(_player.Position, path.Pop());
-                    SendKeys.Send("{Enter}");
-                }
-                else
-                {
-                    resultStep = false;
-                    message = "Completed successfully!";
-                    SendKeys.Send("{Down}");
-                }
+                return FollowPathToExit(out message);
             }
-            else // Procura adjacência segura para explorar
+            else // Procura adjacência segura para explorar ou caça o Wumpus
             {
-                Point? point = SearchesForUnexploredSafeCells();
-                if (point.HasValue)
-                {
-                    Redirect(_player.Position, point.Value);
-                    SendKeys.Send("{Enter}");
-                }
-                else if (!_board.WumpusIsDead)
-                {
-                    if (!HuntingWumpusStateMachine())
-                    {
-                        resultStep = false;
-                        message = "There are no more moves without the risk of death.";
-                    }
-                }
-                else
-                {
-                    resultStep = false;
-                    message = "There are no more moves without the risk of death.";
-                }
+                return ExploreOrHuntWumpus(out message);
             }
             return resultStep;
         }
 
-        private bool HuntingWumpusStateMachine()
+        private void CollectGold()
         {
-            bool running = true; 
+            SendKeys.Send(" "); // Pega o tesouro
+            // Prepara caminho de retorno para saída
+            path = PathFinder.FindShortestPath(_visited, _player.Position, new Point(0, 0));
+            path.Pop(); // Remove o topo pois é posição atual
+        }
+
+        private bool FollowPathToExit(out string message)
+        {
+            message = "";
+            if (path.Count > 0)
+            {
+                Redirect(_player.Position, path.Pop());
+                SendKeys.Send("{Enter}");
+            }
+            else
+            {
+                message = "Completed successfully!";
+                SendKeys.Send("{Down}");
+                return false;
+            }
+            return true;
+        }
+
+
+        private bool ExploreOrHuntWumpus(out string message)
+        {
+            message = "";
+            Point? nextMove = FindUnexploredSafeCell();
+            if (nextMove.HasValue)
+            {
+                Redirect(_player.Position, nextMove.Value);
+                SendKeys.Send("{Enter}");
+            }
+            else if (!_board.WumpusIsDead)
+            {
+                if (!WumpusHuntStateMachine())
+                {
+                    if (TryFindPossibleWumpusPositions())
+                    {
+                        var safePositions = GetSafePositionsForHunt();
+                        if (safePositions.Count > 0)
+                        {
+                            return PreparePathToHunt(safePositions);
+                        }
+                    }
+                    message = "There are no more moves without the risk of death.";
+                    return false;
+                }
+            }
+            else
+            {
+                message = "There are no more moves without the risk of death.";
+                return false;
+            }
+            return true;
+        }
+
+        private List<Point> GetSafePositionsForHunt()
+        {
+            var adj1 = GetAdjacentCells(possibleWumpusPositions[0]);
+            var adj2 = GetAdjacentCells(possibleWumpusPositions[1]);
+            return adj1.Intersect(adj2).Where(p => _visited[p.X, p.Y]).ToList();
+        }
+
+        private bool TryFindPossibleWumpusPositions()
+        {
+            possibleWumpusPositions.Clear();
+            if (!_board.WumpusIsDead && _player.HaveArrow)
+            {
+                for (int i = 0; i < _handler.DimX; i++)
+                {
+                    for (int j = 0; j < _handler.DimY; j++)
+                    {
+                        if (_wumpusPd.ProbDist[i, j] == 0.5)
+                        {
+                            possibleWumpusPositions.Add(new Point(i, j));
+                        }
+                    }
+                }
+            }
+            return possibleWumpusPositions.Count == 2;
+        }
+
+        private Point? FindUnexploredSafeCell()
+        {
+            var adj = GetAdjacentCells(_player.Position);
+
+            foreach (var cell in adj)
+            {
+                if (IsSafeAndUnvisited(cell)) return cell;
+            }
+
+            var unexploredSafeCells = new List<Point>();
+            for (int i = 0; i < _handler.DimX; i++)
+            {
+                for (int j = 0; j < _handler.DimY; j++)
+                {
+                    if (IsSafeAndUnvisited(new Point(i, j)))
+                        unexploredSafeCells.Add(new Point(i, j));
+                }
+            }
+
+            if (unexploredSafeCells.Count > 0)
+                return FindClosestUnexploredSafeCell(unexploredSafeCells);
+
+            return null;
+        }
+
+        private bool IsSafeAndUnvisited(Point cell)
+        {
+            return (_wumpusPd.ProbDist[cell.X, cell.Y] + _pitPd.ProbDist[cell.X, cell.Y] == 0 ||
+                    (wumpusPosition.HasValue && cell == wumpusPosition && _board.WumpusIsDead)) &&
+                    !_visited[cell.X, cell.Y];
+        }
+
+        private Point? FindClosestUnexploredSafeCell(List<Point> unexploredSafeCells)
+        {
+            foreach (var cell in unexploredSafeCells)
+            {
+                _visited[cell.X, cell.Y] = true;
+                var path = PathFinder.FindShortestPath(_visited, _player.Position, cell);
+                _visited[cell.X, cell.Y] = false;
+                if (path.Count >= 2)
+                {
+                    path.Pop();
+                    return path.Pop();
+                }
+            }
+            return null;
+        }
+
+        private bool PreparePathToHunt(List<Point> dest)
+        {
+            path = PathFinder.FindShortestPath(_visited, _player.Position, dest);
+            path.Pop(); // Remove o topo pois é posição atual
+            if (path.Count == 0)
+            {
+                huntingWumpus = WumpusHuntState.Shooting;
+                return AimToShoot();
+            }
+            else
+            {
+                huntingWumpus = WumpusHuntState.Hunting;
+                Redirect(_player.Position, path.Pop());
+                SendKeys.Send("{Enter}");
+            }
+            return true;
+        }
+
+        private bool AimToShoot()
+        {
+            if (wumpusPosition.HasValue)
+                Redirect(_player.Position, wumpusPosition.Value);
+            else if (possibleWumpusPositions.Count == 2)
+            {
+                targetIndex = new Random().Next(0, 1);
+                Redirect(_player.Position, possibleWumpusPositions[targetIndex]);
+            }
+            else return false;
+            return true;
+        }
+
+        private bool WumpusHuntStateMachine()
+        {
+            bool isRunning = true; 
             switch (huntingWumpus)
             {
-                case HuntingWumpus.None:
+                case WumpusHuntState.None:
                     wumpusPosition = SearchesWumpus();
                     if (wumpusPosition.HasValue)
                     {
-                        var adj = Adjacency(wumpusPosition.Value);
-                        path = PathFinder.FindShortestPath(_visited, _player.Position, adj);
-                        path.Pop(); // Remove o topo pois é posição atual
-                        if (path.Count == 0)
-                        {
-                            huntingWumpus = HuntingWumpus.Shooting;
-                            if (wumpusPosition.HasValue)
-                                Redirect(_player.Position, wumpusPosition.Value);
-                            else running = false;
-                        }
-                        else
-                        {
-                            huntingWumpus = HuntingWumpus.Hunting;
-                            Redirect(_player.Position, path.Pop());
-                            SendKeys.Send("{Enter}");
-                        }
+                        var adj = GetAdjacentCells(wumpusPosition.Value);
+                        isRunning = PreparePathToHunt(adj);
                     }
-                    else running = false;
+                    else isRunning = false;
                     break;
-                case HuntingWumpus.Hunting:
+                case WumpusHuntState.Hunting:
                     if (path.Count == 0)
                     {
-                        huntingWumpus = HuntingWumpus.Shooting;
-                        if (wumpusPosition.HasValue)
-                            Redirect(_player.Position, wumpusPosition.Value);
-                        else running = false;
+                        huntingWumpus = WumpusHuntState.Shooting;
+                        isRunning = AimToShoot();
                     }
                     else
                     {
@@ -146,33 +284,26 @@
                         SendKeys.Send("{Enter}");
                     }
                     break;
-                case HuntingWumpus.Shooting:
+                case WumpusHuntState.Shooting:
                     SendKeys.Send("a"); // Atira a flecha
-                    huntingWumpus = HuntingWumpus.Finished;
+                    huntingWumpus = WumpusHuntState.Finished;
+                    if (possibleWumpusPositions.Count == 2)
+                    {
+                        if (_board.WumpusIsDead)
+                        {
+                            _wumpusPd.UpdateSafety(possibleWumpusPositions[targetIndex == 0 ? 1 : 0]);
+                        }
+                        else
+                        {
+                            _wumpusPd.UpdateSafety(possibleWumpusPositions[targetIndex]);
+                        }
+                    }
                     break;
-                case HuntingWumpus.Finished:
-                    running = false;
+                case WumpusHuntState.Finished:
+                    isRunning = false;
                     break;
             }
-            return running;
-        }
-
-        private static void Redirect(Point pos, Point dest)
-        {
-            if (pos.Y == dest.Y)
-            {
-                if (pos.X > dest.X)
-                    SendKeys.Send("{Left}");
-                else
-                    SendKeys.Send("{Right}");
-            }
-            if (pos.X == dest.X)
-            {
-                if (dest.Y > pos.Y)
-                    SendKeys.Send("{Up}");
-                else
-                    SendKeys.Send("{Down}");
-            }
+            return isRunning;
         }
 
         private void UpdateProbDist()
@@ -195,7 +326,7 @@
             return null;
         }
 
-        private List<Point> Adjacency(Point p)
+        private List<Point> GetAdjacentCells(Point p)
         {
             var adj = new List<Point>();
             if (p.X > 0) adj.Add(new(p.X - 1, p.Y));
@@ -203,56 +334,6 @@
             if (p.X < _handler.DimX - 1) adj.Add(new(p.X + 1, p.Y));
             if (p.Y < _handler.DimY - 1) adj.Add(new(p.X, p.Y + 1));
             return adj;
-        }
-
-        private Point? SearchesForUnexploredSafeCells()
-        {
-            var adj = Adjacency(_player.Position);
-
-            Point? dest = null;
-            // Procura por células adjacentes seguras e inexploradas
-            foreach (Point pt in adj)
-            {
-                float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
-                bool v = _visited[pt.X, pt.Y];
-                if ((sum == 0 || (pt==wumpusPosition && _board.WumpusIsDead)) && !v)
-                {
-                    dest = pt;
-                    break;
-                }
-            }
-            // Procura por outras células seguras e inexplorados
-            if (dest is null)
-            {
-                var list = new List<Point>();
-                for (int i=0; i < _handler.DimX; i++)
-                {
-                    for (int j=0; j< _handler.DimY; j++)
-                    {
-                        float sum = _wumpusPd.ProbDist[i, j] + _pitPd.ProbDist[i, j];
-                        if (sum == 0 && !_visited[i,j])
-                        {
-                            list.Add(new Point(i, j));
-                        }
-                    }
-                }
-                if (list.Count > 0)
-                {
-                    foreach (Point pt in list)
-                    {
-                        _visited[pt.X, pt.Y] = true;
-                        var tmp = PathFinder.FindShortestPath(_visited, _player.Position, pt);
-                        _visited[pt.X, pt.Y] = false;
-                        if (tmp.Count >= 2)
-                        {
-                            tmp.Pop();
-                            dest = tmp.Pop();
-                            break;
-                        }
-                    }
-                }
-            }
-            return dest;
         }
     }
 }

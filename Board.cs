@@ -14,7 +14,7 @@
             public Point Gold;
         }
         private readonly GameInitialization[] myFavorites =
-        {
+        [
             new () {
                 Pits = [new(0, 3), new(0, 2), new(3, 0)],
                 Wumpus = new(3, 2),
@@ -40,7 +40,7 @@
                 Wumpus = new(3, 3),
                 Gold = new(3, 1)
             },
-        };
+        ];
         private int myFavoritesIndex = 0;
 
 

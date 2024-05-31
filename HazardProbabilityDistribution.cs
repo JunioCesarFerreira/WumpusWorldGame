@@ -55,6 +55,11 @@
             }
         }
 
+        public void UpdateSafety(Point pos)
+        {
+            _safe[pos.X, pos.Y] = true;
+        }
+
         public void CalculateProbabilities()
         {
             var unsafeSet = new List<(int, int)>();

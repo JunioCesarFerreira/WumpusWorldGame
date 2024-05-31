@@ -115,6 +115,7 @@ namespace WumpusWorld
             }
         }
 
+
         // Click do botão Novo Jogo
         private void Button_New_Game_MouseClick(object sender, MouseEventArgs e)
         {
@@ -152,6 +153,7 @@ namespace WumpusWorld
                 _handlerBoard.RestoresVisual();
             }
         }
+
 
         // Clicks dos botões de direcionamento do jogador
         private void Directions_Click(object sender, MouseEventArgs e)
@@ -222,6 +224,7 @@ namespace WumpusWorld
             }
         }
 
+
         // Tratamento de teclas na interface
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -251,6 +254,7 @@ namespace WumpusWorld
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
 
         // Move o jogador
         private void MovePlayer()
@@ -305,6 +309,7 @@ namespace WumpusWorld
             label_score.Text = player.Score.ToString();
         }
 
+        // Realiza ações do agente passo a passo
         private void Button_Step_MouseClick(object sender, MouseEventArgs e)
         {
             if (!agent.Step(out string msg))
@@ -313,6 +318,7 @@ namespace WumpusWorld
             }
         }
 
+        // Inicia ou para sequência de ações do agente
         private void Button_AgentOnOff_MouseClick(object sender, MouseEventArgs e)
         {
             if (button_agentOnOff.Text == "play")
@@ -334,13 +340,16 @@ namespace WumpusWorld
             }
         }
 
+        // Habilita ou desabilita botões de controle superior
         private void UpdateControlButtonsEnable(bool value)
         {
             button_new_game.Enabled = value;
+            button_my_games.Enabled = value;
             button_show.Enabled = value;
             button_step.Enabled = value;
         }
 
+        // Temporizador para execução sequêncial de ações do agente
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (!agent.Step(out string msg))
