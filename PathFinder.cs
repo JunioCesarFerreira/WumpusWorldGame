@@ -60,6 +60,47 @@
             return []; 
         }
 
+
+        public static Stack<Point> FindShortestPath(bool[,] visited, Point start, List<Point> ends)
+        {
+            int rows = visited.GetLength(0);
+            int cols = visited.GetLength(1);
+
+            if (!IsValid(start.X, start.Y, visited))
+            {
+                return new Stack<Point>(); // Nenhum caminho válido se o ponto inicial for inválido
+            }
+
+            bool[,] visitedNodes = new bool[rows, cols];
+            var queue = new Queue<Node>();
+            queue.Enqueue(new Node(start.X, start.Y, null));
+            visitedNodes[start.X, start.Y] = true;
+
+            while (queue.Count > 0)
+            {
+                Node current = queue.Dequeue();
+
+                if (ends.Exists(end => current.X == end.X && current.Y == end.Y))
+                {
+                    return ConstructPath(current);
+                }
+
+                for (int i = 0; i < 4; i++)
+                {
+                    int newRow = current.X + rowOffsets[i];
+                    int newCol = current.Y + colOffsets[i];
+
+                    if (IsValid(newRow, newCol, visited) && !visitedNodes[newRow, newCol])
+                    {
+                        queue.Enqueue(new Node(newRow, newCol, current));
+                        visitedNodes[newRow, newCol] = true;
+                    }
+                }
+            }
+
+            return new Stack<Point>(); // Nenhum caminho encontrado
+        }
+
         private static bool IsValid(int row, int col, bool[,] visited)
         {
             return row >= 0 

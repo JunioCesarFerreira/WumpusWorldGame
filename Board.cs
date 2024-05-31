@@ -3,9 +3,18 @@
     internal class Board
     {
         // Pontos de localização dos elementos do jogo
-        private Point[] pits = { new(0, 3), new(1, 2), new(3, 2) };//{ new(0, 3), new(2, 0), new(3, 2) };
-        private Point wumpus = new(2, 2);//new(1, 2);
+        //private readonly Point[] pits = [new(0, 3), new(0, 2), new(3, 0)];
+        //private Point wumpus = new(3, 2);//new(1, 2);
+        //private Point gold = new(1, 3);
+
+        //private readonly Point[] pits = [new(0, 3), new(1, 2), new(3, 2)];
+        //private Point wumpus = new(2, 2);
+        //private Point gold = new(3, 3);
+
+        private readonly Point[] pits = [new(0, 3), new(2, 0), new(3, 2)];
+        private Point wumpus = new(1, 2);
         private Point gold = new(3, 3);
+
 
         public Point Wumpus { get => wumpus; }
         public Point Gold { get => gold; }
@@ -19,9 +28,9 @@
             var positions = new List<Point>();
             var restrictions = new List<Point>
             {
-                new Point(0, 0),
-                new Point(0, 1),
-                new Point(1, 0)
+                new (0, 0),
+                new (0, 1),
+                new (1, 0)
             };
 
             while (positions.Count < 5)
@@ -82,7 +91,6 @@
                         KillWumpus();
                     break;
             }
-
         }
     }
 }

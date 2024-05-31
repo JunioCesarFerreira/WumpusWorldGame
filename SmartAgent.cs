@@ -12,6 +12,14 @@
         private Stack<Point> path = new();
 
         private readonly bool[,] _visited;
+        private enum HuntingWumpus {
+            None,
+            Hunting,
+            Shooting,
+            Finished
+        };
+        private HuntingWumpus huntingWumpus = HuntingWumpus.None;
+        private Point? wumpusPosition = null;
 
 
         public SmartAgent(Player player, Board board, HandlerInterfaceBoard handler, HazardProbabilityDistribution w, HazardProbabilityDistribution p) 
@@ -29,12 +37,16 @@
             // Marca como visitado
             _visited[_player.Position.X, _player.Position.Y] = true;
 
+            // Atualiza distribuições de probabilidades
+            UpdateProbDist();
+
             // Se está na posição do tesouro e ainda não o pegou
             if (_player.Position == _board.Gold && !_player.HaveGold)
             {
+                SendKeys.Send(" "); // Pega o tesouro
+                // Prepara caminho de retorno para saída
                 path = PathFinder.FindShortestPath(_visited, _player.Position, new Point(0, 0));
                 path.Pop(); // Remove o topo pois é posição atual
-                SendKeys.Send(" ");
             }
             else if (_player.HaveGold) // Se já pegou o tesouro
             {
@@ -45,7 +57,7 @@
                 }
                 else
                 {
-                    MessageBox.Show("Finished!");
+                    MessageBox.Show("Completed successfully!");
                     SendKeys.Send("{Down}");
                 }
             }
@@ -57,10 +69,74 @@
                     Redirect(_player.Position, point.Value);
                     SendKeys.Send("{Enter}");
                 }
+                else if (!_board.WumpusIsDead)
+                {
+                    if (!HuntingWumpusStateMachine())
+                    {
+                        MessageBox.Show("There are no more moves without the risk of death.");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("There are no more moves without the risk of death.");
+                }
             }
         }
 
-        public static void Redirect(Point pos, Point dest)
+        private bool HuntingWumpusStateMachine()
+        {
+            bool running = true; 
+            switch (huntingWumpus)
+            {
+                case HuntingWumpus.None:
+                    wumpusPosition = SearchesWumpus();
+                    if (wumpusPosition.HasValue)
+                    {
+                        var adj = Adjacency(wumpusPosition.Value);
+                        path = PathFinder.FindShortestPath(_visited, _player.Position, adj);
+                        path.Pop(); // Remove o topo pois é posição atual
+                        if (path.Count == 0)
+                        {
+                            huntingWumpus = HuntingWumpus.Shooting;
+                            if (wumpusPosition.HasValue)
+                                Redirect(_player.Position, wumpusPosition.Value);
+                            else running = false;
+                        }
+                        else
+                        {
+                            huntingWumpus = HuntingWumpus.Hunting;
+                            Redirect(_player.Position, path.Pop());
+                            SendKeys.Send("{Enter}");
+                        }
+                    }
+                    else running = false;
+                    break;
+                case HuntingWumpus.Hunting:
+                    if (path.Count == 0)
+                    {
+                        huntingWumpus = HuntingWumpus.Shooting;
+                        if (wumpusPosition.HasValue)
+                            Redirect(_player.Position, wumpusPosition.Value);
+                        else running = false;
+                    }
+                    else
+                    {
+                        Redirect(_player.Position, path.Pop());
+                        SendKeys.Send("{Enter}");
+                    }
+                    break;
+                case HuntingWumpus.Shooting:
+                    SendKeys.Send("a"); // Atira a flecha
+                    huntingWumpus = HuntingWumpus.Finished;
+                    break;
+                case HuntingWumpus.Finished:
+                    running = false;
+                    break;
+            }
+            return running;
+        }
+
+        private static void Redirect(Point pos, Point dest)
         {
             if (pos.Y == dest.Y)
             {
@@ -91,33 +167,29 @@
             if (!_board.WumpusIsDead && _player.HaveArrow)
             {
                 for (int i = 0; i < _handler.DimX; i++)
-                {
                     for (int j = 0; j < _handler.DimY; j++)
-                    {
-                        if (_wumpusPd.ProbDist[i, j]==1)
-                        {
+                        if (_wumpusPd.ProbDist[i, j]==1 && _pitPd.ProbDist[i,j]==0)
                             return new Point(i, j);
-                        }
-                    }
-                }
             }
             return null;
         }
 
-        private Point? SearchesForUnexploredSafeCells()
+        private List<Point> Adjacency(Point p)
         {
             var adj = new List<Point>();
-            Point p = _player.Position;
             if (p.X > 0) adj.Add(new(p.X - 1, p.Y));
             if (p.Y > 0) adj.Add(new(p.X, p.Y - 1));
-            if (p.X < _handler.DimX-1) adj.Add(new(p.X + 1, p.Y));
-            if (p.Y < _handler.DimY-1) adj.Add(new(p.X, p.Y + 1));
+            if (p.X < _handler.DimX - 1) adj.Add(new(p.X + 1, p.Y));
+            if (p.Y < _handler.DimY - 1) adj.Add(new(p.X, p.Y + 1));
+            return adj;
+        }
 
-            if (adj.Count == 0) return null;
-
-            UpdateProbDist();
+        private Point? SearchesForUnexploredSafeCells()
+        {
+            var adj = Adjacency(_player.Position);
 
             Point? dest = null;
+            // Procura por células adjacentes seguras e inexploradas
             foreach (Point pt in adj)
             {
                 float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
@@ -128,6 +200,7 @@
                     break;
                 }
             }
+            // Procura por outras células seguras e inexplorados
             if (dest is null)
             {
                 var list = new List<Point>();
@@ -155,18 +228,6 @@
                             dest = tmp.Pop();
                             break;
                         }
-                    }
-                }
-            }
-            if (dest is null)
-            {
-                foreach (Point pt in adj)
-                {
-                    float sum = _wumpusPd.ProbDist[pt.X, pt.Y] + _pitPd.ProbDist[pt.X, pt.Y];
-                    if (sum == 0)
-                    {
-                        dest = pt;
-                        break;
                     }
                 }
             }
