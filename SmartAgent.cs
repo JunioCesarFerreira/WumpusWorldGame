@@ -251,7 +251,7 @@
                 Redirect(_player.Position, wumpusPosition.Value);
             else if (possibleWumpusPositions.Count == 2)
             {
-                targetIndex = new Random().Next(0, 1);
+                targetIndex = new Random().Next(0, 2);
                 Redirect(_player.Position, possibleWumpusPositions[targetIndex]);
             }
             else return false;
