@@ -81,8 +81,8 @@
             label_score = new Label();
             label0 = new Label();
             button_step = new Button();
-            button_agentOnOff = new Button();
-            button_show = new Button();
+            button_agent_play_stop = new Button();
+            button_show_hide = new Button();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -815,8 +815,8 @@
             tableLayoutPanel2.Controls.Add(label_score, 6, 0);
             tableLayoutPanel2.Controls.Add(label0, 5, 0);
             tableLayoutPanel2.Controls.Add(button_step, 4, 0);
-            tableLayoutPanel2.Controls.Add(button_agentOnOff, 3, 0);
-            tableLayoutPanel2.Controls.Add(button_show, 2, 0);
+            tableLayoutPanel2.Controls.Add(button_agent_play_stop, 3, 0);
+            tableLayoutPanel2.Controls.Add(button_show_hide, 2, 0);
             tableLayoutPanel2.Location = new Point(7, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 1;
@@ -898,35 +898,35 @@
             // 
             // button_agentOnOff
             // 
-            button_agentOnOff.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_agentOnOff.BackColor = Color.FromArgb(64, 64, 64);
-            button_agentOnOff.FlatAppearance.BorderSize = 0;
-            button_agentOnOff.FlatStyle = FlatStyle.Flat;
-            button_agentOnOff.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_agentOnOff.ForeColor = Color.White;
-            button_agentOnOff.Location = new Point(300, 3);
-            button_agentOnOff.Name = "button_agentOnOff";
-            button_agentOnOff.Size = new Size(93, 35);
-            button_agentOnOff.TabIndex = 9;
-            button_agentOnOff.Text = "play";
-            button_agentOnOff.UseVisualStyleBackColor = false;
-            button_agentOnOff.MouseClick += Button_AgentOnOff_MouseClick;
+            button_agent_play_stop.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_agent_play_stop.BackColor = Color.FromArgb(64, 64, 64);
+            button_agent_play_stop.FlatAppearance.BorderSize = 0;
+            button_agent_play_stop.FlatStyle = FlatStyle.Flat;
+            button_agent_play_stop.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_agent_play_stop.ForeColor = Color.White;
+            button_agent_play_stop.Location = new Point(300, 3);
+            button_agent_play_stop.Name = "button_agentOnOff";
+            button_agent_play_stop.Size = new Size(93, 35);
+            button_agent_play_stop.TabIndex = 9;
+            button_agent_play_stop.Text = "play";
+            button_agent_play_stop.UseVisualStyleBackColor = false;
+            button_agent_play_stop.MouseClick += Button_AgentPlayStop_MouseClick;
             // 
             // button_show
             // 
-            button_show.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            button_show.BackColor = Color.FromArgb(64, 64, 64);
-            button_show.FlatAppearance.BorderSize = 0;
-            button_show.FlatStyle = FlatStyle.Flat;
-            button_show.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_show.ForeColor = Color.White;
-            button_show.Location = new Point(201, 3);
-            button_show.Name = "button_show";
-            button_show.Size = new Size(93, 35);
-            button_show.TabIndex = 1;
-            button_show.Text = "show";
-            button_show.UseVisualStyleBackColor = false;
-            button_show.MouseClick += Button_Show_MouseClick;
+            button_show_hide.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            button_show_hide.BackColor = Color.FromArgb(64, 64, 64);
+            button_show_hide.FlatAppearance.BorderSize = 0;
+            button_show_hide.FlatStyle = FlatStyle.Flat;
+            button_show_hide.Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button_show_hide.ForeColor = Color.White;
+            button_show_hide.Location = new Point(201, 3);
+            button_show_hide.Name = "button_show";
+            button_show_hide.Size = new Size(93, 35);
+            button_show_hide.TabIndex = 1;
+            button_show_hide.Text = "show";
+            button_show_hide.UseVisualStyleBackColor = false;
+            button_show_hide.MouseClick += Button_ShowHide_MouseClick;
             // 
             // FormGame
             // 
@@ -981,7 +981,7 @@
         private Button button_arrow;
         private Button button_go;
         private TableLayoutPanel tableLayoutPanel2;
-        private Button button_show;
+        private Button button_show_hide;
         private Button button_new_game;
         private Label label_score;
         private Label label0;
@@ -1004,7 +1004,7 @@
         private Label label11;
         private Label label16;
         private Button button_step;
-        private Button button_agentOnOff;
+        private Button button_agent_play_stop;
         private Button button_my_games;
     }
 }

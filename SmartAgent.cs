@@ -2,12 +2,12 @@
 {
     internal class SmartAgent
     {
-        private readonly Player _player;
-        private readonly Board _board;
-        private readonly HandlerInterfaceBoard _handler;
+        private readonly Player _player; // Jogador
+        private readonly Board _board; // Tabuleiro abstrato
+        private readonly HandlerInterfaceBoard _handler; // Manipulador da interface visual
 
-        private readonly HazardProbabilityDistribution _wumpusPd;
-        private readonly HazardProbabilityDistribution _pitPd;
+        private readonly HazardProbabilityDistribution _wumpusPd; // Distribuição probabilidades do Wumpus
+        private readonly HazardProbabilityDistribution _pitPd; // Distribuição probabilidades dos poços
 
         private readonly bool[,] _visited;
 

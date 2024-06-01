@@ -76,7 +76,7 @@ namespace WumpusWorld
             _handlerBoard.Tagging(_board);
 
             label_scream.Visible = false;
-            button_show.Text = "show";
+            button_show_hide.Text = "show";
 
             _wumpusPd.Initialize(player.Position);
             _pitPd.Initialize(player.Position);
@@ -127,15 +127,15 @@ namespace WumpusWorld
         {
             _board.NewFavoriteGame();
             StartBoard();
-            Button_Show_MouseClick(button_show, e);
+            Button_ShowHide_MouseClick(button_show_hide, e);
         }
 
         // Click do botão Mostrar
-        private void Button_Show_MouseClick(object sender, MouseEventArgs e)
+        private void Button_ShowHide_MouseClick(object sender, MouseEventArgs e)
         {
-            if (button_show.Text == "show")
+            if (button_show_hide.Text == "show")
             {
-                button_show.Text = "hide";
+                button_show_hide.Text = "hide";
                 _handlerBoard.SaveVisual();
                 for (int i = 0; i < _handlerBoard.DimX; i++)
                 {
@@ -149,7 +149,7 @@ namespace WumpusWorld
             }
             else
             {
-                button_show.Text = "show";
+                button_show_hide.Text = "show";
                 _handlerBoard.RestoresVisual();
             }
         }
@@ -319,11 +319,15 @@ namespace WumpusWorld
         }
 
         // Inicia ou para sequência de ações do agente
-        private void Button_AgentOnOff_MouseClick(object sender, MouseEventArgs e)
+        private void Button_AgentPlayStop_MouseClick(object sender, MouseEventArgs e)
         {
-            if (button_agentOnOff.Text == "play")
+            if (button_agent_play_stop.Text == "play")
             {
-                button_agentOnOff.Text = "stop";
+                if (button_show_hide.Text == "hide")
+                {
+                    Button_ShowHide_MouseClick(button_show_hide, e);
+                }
+                button_agent_play_stop.Text = "stop";
                 UpdateControlButtonsEnable(false);
                 timer = new System.Windows.Forms.Timer()
                 {
@@ -334,7 +338,7 @@ namespace WumpusWorld
             }
             else
             {
-                button_agentOnOff.Text = "play";
+                button_agent_play_stop.Text = "play";
                 UpdateControlButtonsEnable(true);
                 timer.Stop();
             }
@@ -345,7 +349,7 @@ namespace WumpusWorld
         {
             button_new_game.Enabled = value;
             button_my_games.Enabled = value;
-            button_show.Enabled = value;
+            button_show_hide.Enabled = value;
             button_step.Enabled = value;
         }
 
@@ -355,7 +359,7 @@ namespace WumpusWorld
             if (!agent.Step(out string msg))
             {
                 timer.Stop();
-                button_agentOnOff.Text = "play";
+                button_agent_play_stop.Text = "play";
                 UpdateControlButtonsEnable(true);
                 MessageBox.Show(msg);
             }

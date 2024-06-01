@@ -24,9 +24,9 @@
             int rows = visited.GetLength(0);
             int cols = visited.GetLength(1);
 
+            // Verificando se os dados de entrada são válidos
             if (!IsValid(start.X, start.Y, visited) || !IsValid(end.X, end.Y, visited))
             {
-                // Nenhum caminho válido se os pontos inicial ou final forem inválidos
                 return [];
             }
 
@@ -41,6 +41,7 @@
 
                 if (current.X == end.X && current.Y == end.Y)
                 {
+                    // Construção do caminnho
                     return ConstructPath(current);
                 }
 
@@ -66,9 +67,10 @@
             int rows = visited.GetLength(0);
             int cols = visited.GetLength(1);
 
+            // Verificando se os dados de entrada são válidos
             if (!IsValid(start.X, start.Y, visited))
             {
-                return new Stack<Point>(); // Nenhum caminho válido se o ponto inicial for inválido
+                return new Stack<Point>();
             }
 
             bool[,] visitedNodes = new bool[rows, cols];
@@ -82,6 +84,7 @@
 
                 if (ends.Exists(end => current.X == end.X && current.Y == end.Y))
                 {
+                    // Construção do caminho
                     return ConstructPath(current);
                 }
 
