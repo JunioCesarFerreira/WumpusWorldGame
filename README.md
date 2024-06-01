@@ -2,7 +2,7 @@
 
 🌍 *[Português](README.md) ∙ [English](README_en.md)*
 
-Wumpus World é um jogo baseado no famoso problema lógico em inteligência artificial. O jogador navega por um mundo de grade, tentando evitar perigos como poços e o terrível Wumpus enquanto busca um tesouro de ouro. Neste repositório apresentamos uma implementação em C# com interface Windows Forms, onde o usuário pode jogar ou utilizar um agente inteligênte para tentar resolver o jogo.
+Wumpus World é um jogo baseado no famoso problema lógico em inteligência artificial. O jogador navega por um mundo de grade, tentando evitar perigos como poços e o terrível Wumpus enquanto busca um tesouro de ouro. Neste repositório apresentamos uma implementação em C# com interface Windows Forms, onde o usuário pode jogar ou utilizar um agente inteligente para tentar resolver o jogo.
 
 ## O Jogo do Mundo de Wumpus
 
@@ -16,13 +16,13 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
 
 ### Regras do Jogo
 
-1. **Ambiente de Grelha**: O mundo é uma grade quadrada 4x4, onde cada quadrado pode conter um poço, o Wumpus, ouro, ou nada. As salas (células da matriz 4x4) são conectadas na vertical e na horizontal. O agente inicia na posição [1,1] que é a entrada e saída da caverna.
+1. **Ambiente de Grade**: O mundo é uma grade quadrada 4x4, onde cada quadrado pode conter um poço, o Wumpus, ouro, ou nada. As salas (células da matriz 4x4) são conectadas na vertical e na horizontal. O agente inicia na posição [1,1], que é a entrada e saída da caverna.
 
 2. **Percepções**:
    - **Brisa**: Sentida em quadrados adjacentes a poços.
    - **Fedor**: Sentida em quadrados adjacentes ao Wumpus.
    - **Brilho**: O ouro está no mesmo quadrado.
-   - **Bump**: O agente tentou se mover através de uma parede.
+   - **Batida**: O agente tentou se mover através de uma parede.
    - **Grito**: O Wumpus foi morto.
 
 3. **Ações do Agente**:
@@ -37,9 +37,9 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
    - O agente cai em um poço ou é devorado pelo Wumpus.
    - O agente decide deixar a caverna sem o ouro.
 
-5. **Medida de desempenho**:
+5. **Medida de Desempenho**:
    - **+1000** por pegar o ouro.
-   - **-1000** se cair e um poço oou for devorado pelo Wumpus.
+   - **-1000** se cair em um poço ou for devorado pelo Wumpus.
    - **-1** para cada ação executada.
    - **-10** pelo uso da flecha.
 
@@ -48,7 +48,7 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
 ## Requisitos
 
 - .NET 8.0
-- SO Windows.
+- SO Windows
 
 ## Instalação
 
@@ -61,7 +61,7 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
 
 ## Uso
 
-### Jogo manual
+### Jogo Manual
 - Use os botões de direção para mover o jogador pelo grid.
 - O botão "Go" executa o movimento na direção atualmente selecionada.
 - Use o botão "Get" para pegar o ouro se estiver na mesma célula.
@@ -79,18 +79,18 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
 ![img](print4.png)
 
 O personagem pode ser controlado tanto pelos botões descritos acima quanto via teclado:
-- `setas` para direcionar o personagem.
-- `a` para atirar a flecha.
-- ` ` para pegar o ouro.
+- `Setas` para direcionar o personagem.
+- `A` para atirar a flecha.
+- `Espaço` para pegar o ouro.
 - `Enter` para caminhar de uma célula para outra.
 
 ### Jogo Automático
 
-Um dos motivos do desenvolvimento deste projeto foi a vontade de implementar um agente inteligente para este problema clássido de IA. Na parte superior da interface gráfica você encontrará os botões que permitem selecionar alguns dos jogos favoritos e de executar o agente inteligente que controla o personagem em busca do melhor resultado para o jogo proposto.
-Os botões da parte superior da interface gráfica são:
+Um dos motivos do desenvolvimento deste projeto foi a vontade de implementar um agente inteligente para este problema clássico de IA. Na parte superior da interface gráfica, você encontrará os botões que permitem selecionar alguns dos jogos favoritos e executar o agente inteligente que controla o personagem em busca do melhor resultado para o jogo proposto. Os botões da parte superior da interface gráfica são:
+														
 - `new game`: Gera um novo jogo aleatório.
 - `my games`: Alterna entre uma pequena coleção dos meus jogos favoritos.
-- `show/hide`: Permite exibir os perigos do jogo e oculta-los (evidente que durante o jogo estes são ocultos).
+- `show/hide`: Permite exibir os perigos do jogo e ocultá-los (durante o jogo, os perigos são ocultos).
 - `play/stop`: Inicia ou para o modo automático.
 - `step`: Executa o modo automático passo a passo.
 
@@ -102,7 +102,7 @@ Os botões da parte superior da interface gráfica são:
 
 ## Sobre as Distribuições de Probabilidades
 
-### Caso particular do Wumpus
+### Caso Particular do Wumpus
 
 #### Definição de Adjacência de um Conjunto
 Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência $A = \text{adj}(C)$ é dado por todas as células adjacentes às células de $C$ nas direções acima, abaixo, à direita e à esquerda.
@@ -110,7 +110,7 @@ Seja $C$ um subconjunto de células do tabuleiro $B$. O conjunto de adjacência 
 $$
 A = \text{adj}(C) = \bigcup_{(i,j)\in C}\big\lbrace (i+1,j), (i-1,j), (i,j+1), (i,j-1)\big\rbrace
 $$
-
+  
 #### Exemplo
 Seja $C = \lbrace c_{1,1} \rbrace$, então $\text{adj}(C) = \lbrace c_{1,2}, c_{2,1} \rbrace$.
 
@@ -136,7 +136,7 @@ $$
 
 A notação $||A||$ indica a cardinalidade do conjunto $A$.
 
-E modelo é implementado na classe [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs). No entanto, esta foi substituida pela gernaralização a seguir.
+Esse modelo é implementado na classe [WumpusProbabilityDistribution](WumpusProbabilityDistribution.cs). No entanto, esta foi substituída pela generalização a seguir.
 
 
 ### Generalização da Distribuição de Probabilidades
@@ -145,27 +145,27 @@ E modelo é implementado na classe [WumpusProbabilityDistribution](WumpusProbabi
 Denotamos por $\mathcal{C^S_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
 
 $$
-\mathcal{C}^S_n:=\big\lbrace C\subset S^c \mid ||C||=n \big\rbrace.
-$$
+ \mathcal{C}^S_n := \big\lbrace C \subset S^c \mid ||C|| = n \big\rbrace. $$
+  
 
-Seja $M$ o conjunto das células já vizitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
+Seja $M$ o conjunto das células já visitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
 
 $$
-V(\mathcal{C}^S_n):=\big\lbrace \mathbf{C}\in\mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c\cap M = \emptyset \big\rbrace.
-$$
+ V(\mathcal{C}^S_n) := \big\lbrace \mathbf{C} \in \mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c \cap M = \emptyset \big\rbrace. $$
+  
 
-Assim, cada configuração $\mathbf{C}\in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.
+Assim, cada configuração $\mathbf{C} \in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.
 
 #### Probabilidade de Perigo
 
 $$
-P(C_{i,j}=p|M,S)=\begin{cases}
-0, &\text{ se }C_{i,j}\in S,\\
-\frac{||\lbrace\mathbf{C}\in V(\mathcal{C}^S_n) \mid C_{i,j}\in\mathbf{C}\rbrace||}{||V(\mathcal{C}^S_n)||}, &\text{ se }C_{i,j}\notin S.
+P(C_{i,j} = p \mid M, S) = \begin{cases}
+0, & \text{se } C_{i,j} \in S,\\
+\frac{||\lbrace \mathbf{C} \in V(\mathcal{C}^S_n) \mid C_{i,j} \in \mathbf{C} \rbrace||}{||V(\mathcal{C}^S_n)||}, & \text{se } C_{i,j} \notin S.
 \end{cases}
 $$
 
-Esta é distribuição que implementamos em [HazardProbabilityDistribution](HazardProbabilityDistribution.cs).
+Essa distribuição é implementada em [HazardProbabilityDistribution](HazardProbabilityDistribution.cs).
 
 ---
 
@@ -174,7 +174,7 @@ Esta é distribuição que implementamos em [HazardProbabilityDistribution](Haza
 O agente inteligente implementado para resolver o problema do Mundo de Wumpus segue um algoritmo baseado em probabilidades e regras para explorar o ambiente, evitar perigos e alcançar o objetivo de coletar o tesouro (ouro) e retornar à posição inicial. O algoritmo é composto pelas seguintes etapas principais:
 
 #### 1. Inicialização
-- **Construtores**: O agente recebe os objetos `Player`, `Board`, `HandlerInterfaceBoard`, `HazardProbabilityDistribution` para Wumpus e poços.
+- **Construtores**: O agente recebe os objetos `Player`, `Board`, `HandlerInterfaceBoard` e `HazardProbabilityDistribution` para Wumpus e poços.
 - **Atributos**: O agente mantém informações sobre a posição do jogador, o tabuleiro, distribuições de probabilidades de perigos, células visitadas, estado de caça ao Wumpus e possíveis posições do Wumpus.
 
 #### 2. Execução de Passos (`Step`)
@@ -210,7 +210,7 @@ O agente inteligente combina a exploração baseada em regras e probabilidades c
 
 ---
 
-## Futuras melhorias e experimentações
+## Futuras Melhorias e Experimentações
 
 Para refinar as funcionalidades do agente inteligente no problema do Mundo de Wumpus, aqui estão algumas opções que pensamos em explorar:
 
@@ -242,7 +242,7 @@ Para refinar as funcionalidades do agente inteligente no problema do Mundo de Wu
 - **Histórico de Decisões**: Manter um registro das decisões tomadas pelo agente e suas justificativas para facilitar a análise e depuração.
 
 ### 8. Estruturação e Organização do Código
-- **Modularização**: Refatorar o código em módulos mais coesos, como separação de lógica de caça ao Wumpus, movimentação, e atualização de probabilidades.
+- **Modularização**: Refatorar o código em módulos mais coesos, como separação de lógica de caça ao Wumpus, movimentação e atualização de probabilidades.
 - **Testes Unitários**: Implementar uma suíte abrangente de testes unitários para garantir a corretude e facilitar a manutenção do código.
 
 ---
