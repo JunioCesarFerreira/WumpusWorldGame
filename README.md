@@ -67,22 +67,16 @@ O jogador controla um agente (o explorador) cujo objetivo é encontrar um tesour
 - Use o botão "Get" para pegar o ouro se estiver na mesma célula.
 - Use o botão "Arrow" para atirar uma flecha na direção atualmente selecionada.
 - Pressione as teclas correspondentes para uma interação mais rápida:
-  - Setas para mover.
-  - Enter para "Go".
-  - Espaço para "Get".
-  - A para "Arrow".
+  - `Setas` para mover.
+  - `Enter` para "Go".
+  - `Espaço` para "Get".
+  - `A` para "Arrow".
 - Dicas sensoriais como "Breeze" e "Stench" para indicar a proximidade de perigos.
 - Tabela com distribuições de probabilidades de poços e Wumpus em cada célula.
 
 ![img](print.png)
 
 ![img](print4.png)
-
-O personagem pode ser controlado tanto pelos botões descritos acima quanto via teclado:
-- `Setas` para direcionar o personagem.
-- `A` para atirar a flecha.
-- `Espaço` para pegar o ouro.
-- `Enter` para caminhar de uma célula para outra.
 
 ### Jogo Automático
 
