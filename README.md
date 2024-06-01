@@ -212,7 +212,7 @@ Para refinar as funcionalidades do agente inteligente no problema do Mundo de Wu
 - **Inferência Bayesiana**: Implementar um mecanismo de inferência bayesiana para atualizar as distribuições de probabilidade com base nas observações do agente, como brisas e fedor. Isso pode melhorar a precisão das estimativas de perigo.
 
 ### 2. Planejamento Avançado
-- **Planejamento com A* ou Dijkstra**: Usar algoritmos de busca de caminho mais sofisticados como A* ou Dijkstra para encontrar caminhos mais eficientes e seguros.
+- **Planejamento com $A^*$ ou Dijkstra**: Usar algoritmos de busca de caminho mais sofisticados como A* ou Dijkstra para encontrar caminhos mais eficientes e seguros.
 - **Simulação de Cenários**: Implementar a capacidade de simular movimentos futuros para avaliar o risco e a recompensa antes de tomar uma decisão.
 
 ### 3. Aprendizado e Adaptação

@@ -214,7 +214,7 @@ To refine the functionalities of the intelligent agent in the Wumpus World probl
 - **Bayesian Inference**: Implement a Bayesian inference mechanism to update probability distributions based on the agent's observations, such as breezes and stench. This can improve the accuracy of hazard estimates.
 
 ### 2. Advanced Planning
-- **Planning with A* or Dijkstra**: Use more sophisticated pathfinding algorithms like A* or Dijkstra to find more efficient and safer paths.
+- **Planning with $A^*$ or Dijkstra**: Use more sophisticated pathfinding algorithms like A* or Dijkstra to find more efficient and safer paths.
 - **Scenario Simulation**: Implement the ability to simulate future moves to evaluate risk and reward before making a decision.
 
 ### 3. Learning and Adaptation
