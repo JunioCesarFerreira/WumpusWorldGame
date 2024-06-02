@@ -136,16 +136,18 @@ Esse modelo é implementado na classe [WumpusProbabilityDistribution](WumpusProb
 ### Generalização da Distribuição de Probabilidades
 
 #### Definição
-Denotamos por $\mathcal{C^S_n}$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
+Denotamos por $\mathcal{C}^S_n$ o conjunto de todas as combinações possíveis de $n$ células de $S^c$ que podem conter $n$ perigos (sejam poços ou o Wumpus). Isto é,
 
 $$
- \mathcal{C}^S_n := \big\lbrace C \subset S^c \mid ||C|| = n \big\rbrace. $$
+\mathcal{C}^S_n := \big\lbrace C \subset S^c \mid ||C|| = n \big\rbrace.
+$$
   
 
 Seja $M$ o conjunto das células já visitadas com indicação de perigo. Definimos o conjunto das configurações válidas por:
 
 $$
- V(\mathcal{C}^S_n) := \big\lbrace \mathbf{C} \in \mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c \cap M = \emptyset \big\rbrace. $$
+V(\mathcal{C}^S_n) := \big\lbrace \mathbf{C} \in \mathcal{C}^S_n \mid \text{adj}(\mathbf{C})^c \cap M = \emptyset \big\rbrace. 
+$$
   
 
 Assim, cada configuração $\mathbf{C} \in V(\mathcal{C}^S_n)$ representa uma possível distribuição dos perigos indicados.

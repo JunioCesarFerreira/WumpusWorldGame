@@ -40,6 +40,11 @@
                 Wumpus = new(3, 3),
                 Gold = new(3, 1)
             },
+            new () {
+                Pits = [new(0,2), new(1,3), new(3,0)],
+                Wumpus = new(2,2),
+                Gold = new(3,3)
+            },
         ];
         private int myFavoritesIndex = 0;
 

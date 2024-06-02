@@ -136,7 +136,7 @@ This model is implemented in the class [WumpusProbabilityDistribution](WumpusPro
 ### Generalization of Probability Distribution
 
 #### Definition
-We denote by $\mathcal{C^S_n}$ the set of all possible combinations of $n$ cells of $S^c$ that can contain $n$ hazards (either pits or the Wumpus). That is,
+We denote by $\mathcal{C}^S_n$ the set of all possible combinations of $n$ cells of $S^c$ that can contain $n$ hazards (either pits or the Wumpus). That is,
 
 $$
 \mathcal{C}^S_n := \big\lbrace C \subset S^c \mid ||C|| = n \big\rbrace.
