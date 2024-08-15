@@ -1,6 +1,6 @@
 # Wumpus World
 
-🌍 *[Portuguese](README.md) ∙ [English](README_en.md)*
+🌍 *[Portuguese](README.md) ∙ [**English**](README_en.md)*
 
 Wumpus World is a game based on the famous logical problem in artificial intelligence. The player navigates through a grid world, trying to avoid dangers such as pits and the terrible Wumpus while searching for a gold treasure. In this repository, we present an implementation in C# with a Windows Forms interface, where the user can play or use an intelligent agent to try to solve the game.
 
