@@ -243,12 +243,6 @@ Para refinar as funcionalidades do agente inteligente no problema do Mundo de Wu
 
 ---
 
-## Licença
-
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
-
----
-
 ## Contribuição
 
 Contribuições são bem-vindas! Para contribuir:
@@ -258,5 +252,11 @@ Contribuições são bem-vindas! Para contribuir:
 3. Faça commit de suas alterações (`git commit -m 'Add some AmazingFeature'`).
 4. Faça push para a branch (`git push origin feature/AmazingFeature`).
 5. Abra um Pull Request.
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a [Licença MIT](LICENSE).
 
 ---
